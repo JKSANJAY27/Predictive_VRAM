@@ -1,6 +1,6 @@
 # Predictive VRAM & Network-Aware Dynamic Split Inference for Edge LLMs
 
-[![Research Prototype](https://img.shields.io/badge/Status-Module_6_Completed-brightgreen.svg)](#)
+[![Research Prototype](https://img.shields.io/badge/Status-Module_7_Completed-brightgreen.svg)](#)
 [![Python Version](https://img.shields.io/badge/Python-3.12-blue.svg)](#)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.10.0+cpu-orange.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#)
@@ -93,10 +93,22 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 |  - Uniform Scaling Normalization & Ablation Presets (Reactive, Latency, No-Switch)    |
 +---------------------------------------------------------------------------------------+
                                            │
-                                    (Upcoming Module 7)
+                              Candidate Scores & Forecasts
                                            ▼
 +---------------------------------------------------------------------------------------+
-|  Module 7: Adaptive Partition Controller (Keep vs Migrate Decision)                  |
+|  Module 7: Adaptive Partition Controller (src/controller/)                            |
+|  - Decision Modes: Static (Baseline), Reactive (Zero Lookahead), Predictive (Horizon) |
+|  - Anti-Thrashing Guardrails: Cooldown Period, Minimum Dwell Time, Hysteresis Votes   |
+|  - Minimum Benefit Threshold (theta) & Expected Gain Calculation                      |
+|  - Strict Safety Hierarchy: OOM Prevention & Network Disconnection Emergency Override|
+|  - MigrationRequest Specification for Module 8 (Zero in-module physical movement)     |
+|  - Trace Replay Simulation & ControllerHistory Metrics Accumulator                    |
++---------------------------------------------------------------------------------------+
+                                           │
+                                  (Upcoming Module 8)
+                                           ▼
++---------------------------------------------------------------------------------------+
+|  Module 8: Physical Migration & Runtime State Transition                              |
 +---------------------------------------------------------------------------------------+
 ```
 
@@ -112,7 +124,9 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 - **Module 5 (Split Catalog & Feasible Candidate Plan Generation):** COMPLETE (82 tests)
   - Exhaustive contiguous partition enumeration across tiers, deterministic per-tier memory estimation (weights + KV-cache + safety margins), provenance-aware feasibility evaluation (`FEASIBLE`, `INFEASIBLE`, `UNKNOWN`), delta comparison vs current plan, auditable candidate tables.
 - **Module 6 (Cost Model and Candidate Scoring):** COMPLETE (31 tests)
-  - Multi-objective composite cost calculation $J(a)$, decomposed latency, decoupled steady-state communication vs one-time switching penalty $P_{\text{switch}}$, uniform scale normalizer, ablation support, auditable score breakdowns. Total test suite: 270 passing tests.
+  - Multi-objective composite cost calculation $J(a)$, decomposed latency, decoupled steady-state communication vs one-time switching penalty $P_{\text{switch}}$, uniform scale normalizer, ablation support, auditable score breakdowns.
+- **Module 7 (Adaptive Predictive Partition Controller):** COMPLETE (66 tests)
+  - Static, reactive, and predictive decision policies; anti-thrashing guardrails (cooldown, dwell time, threshold, hysteresis); safety hierarchy with emergency OOM overrides; typed `MigrationRequest` emission for Module 8; audit history and metrics. Total test suite: 336 passing tests.
 
 ---
 
@@ -121,7 +135,7 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 ```
 d:/Sanjay/B.Tech CSE/vram/
 ├── configs/
-│   ├── baseline.yaml         # Execution parameters, tier configs, and split presets
+│   ├── baseline.yaml         # Execution parameters, tier configs, split presets, controller params
 │   └── model.yaml            # Target model specs (GPT-2, 12 layers, 124M params)
 ├── docs/
 │   ├── environment.md        # Hardware and environment inspection report
@@ -129,13 +143,16 @@ d:/Sanjay/B.Tech CSE/vram/
 │   ├── state.md              # Canonical state, buffer invariants, and feature extraction
 │   ├── prediction.md         # Predictive forecasting engine, targets, and evaluation
 │   ├── partitioning.md       # Split catalog, structural enumeration, memory estimation, feasibility
-│   └── cost_model.md         # Multi-objective cost formulation, normalization, and trade-off scoring
+│   ├── cost_model.md         # Multi-objective cost formulation, normalization, and trade-off scoring
+│   └── controller.md         # Controller decision policy, anti-thrashing, safety, and handoff
 ├── scripts/
 │   ├── run_baseline.py       # End-to-end baseline runner and parity verification
 │   ├── run_prediction_demo.py # Interactive prediction demonstration on StateBuffer
 │   ├── evaluate_predictor.py # Walk-forward evaluation benchmark on traces
 │   ├── run_candidate_demo.py # Module 5 candidate catalog and feasibility demonstration
-│   └── run_cost_demo.py      # Module 6 cost model and multi-objective scoring demonstration
+│   ├── run_cost_demo.py      # Module 6 cost model and multi-objective scoring demonstration
+│   ├── run_controller_demo.py # Module 7 controller demonstration across modes and guards
+│   └── evaluate_controller.py # Module 7 benchmark runner across synthetic scenarios
 ├── src/
 │   ├── config/
 │   │   └── settings.py       # Configuration management
@@ -145,14 +162,12 @@ d:/Sanjay/B.Tech CSE/vram/
 │   ├── prediction/           # Module 4: Predictive forecasting engine
 │   ├── partitioning/         # Module 5: Split catalog & feasible candidate plan generation
 │   ├── cost/                 # Module 6: Cost model and candidate scoring
-│   │   ├── types.py          # CostWeights, CostBreakdown, CandidateScore, CostModelCalibration
-│   │   ├── normalization.py  # Uniform scale normalizer for cross-metric comparability
-│   │   ├── latency.py        # Decomposed latency cost model (compute, comm, queue)
-│   │   ├── communication.py  # Steady-state activation transfer cost model
-│   │   ├── memory.py         # Multi-horizon memory pressure and headroom cost model
-│   │   ├── energy.py         # Modeled power-proxy energy estimation
-│   │   ├── switching.py      # Structural repartitioning penalty model (P_switch)
-│   │   └── model.py          # Master CostModel coordinator and table formatter
+│   ├── controller/           # Module 7: Adaptive predictive partition controller
+│   │   ├── types.py          # ControlAction, DecisionReason, MigrationRequest, ControllerConfig
+│   │   ├── safety.py         # SafetyPolicy and SafetyEvaluation
+│   │   ├── stability.py      # StabilityChecker and StabilityResult (anti-thrashing)
+│   │   ├── history.py        # ControllerHistory tracking and metrics aggregation
+│   │   └── controller.py     # AdaptivePartitionController orchestrator
 │   └── utils/
 │       └── logging.py        # Structured logging utilities
 └── tests/
@@ -164,7 +179,8 @@ d:/Sanjay/B.Tech CSE/vram/
     ├── test_state.py         # RuntimeState, StateBuffer, & feature extraction tests
     ├── test_prediction.py    # Predictors, physical bounds, metrics, walk-forward tests
     ├── test_partitioning.py  # Module 5 catalog, memory, feasibility, comparison tests
-    └── test_cost.py          # Module 6 weights, normalization, latency, comm, memory, switching tests
+    ├── test_cost.py          # Module 6 weights, normalization, latency, comm, memory, switching tests
+    └── test_controller.py    # Module 7 modes, threshold, dwell, cooldown, hysteresis, safety tests
 ```
 
 ---

@@ -92,3 +92,17 @@ cost:
       edge_a: 45.0
       edge_b: 150.0
 
+# Adaptive Predictive Partition Controller Configuration (Module 7)
+controller:
+  mode: "predictive"             # Options: "static", "reactive", "predictive"
+  switch_threshold: 0.25         # Minimum required expected gain: J(curr) - J(cand) > theta
+  minimum_dwell_seconds: 5.0     # Minimum time to remain on a partition after switching
+  cooldown_seconds: 5.0          # Time to reject normal switching requests after a switch
+  hysteresis_cycles: 2           # Number of consecutive cycles candidate must be preferred
+  allow_unknown_switches: false  # Whether candidates with UNKNOWN feasibility can be selected
+  emergency_override: true       # Allow threshold/cooldown bypass if current plan is unsafe
+  fallback_plan: "local"         # Default safe partition plan (monolithic User Device)
+  safety:
+    max_memory_pressure: 0.90
+    allow_reactive_fallback: true
+
