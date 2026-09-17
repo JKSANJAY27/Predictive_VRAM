@@ -1,6 +1,6 @@
 # Predictive VRAM & Network-Aware Dynamic Split Inference for Edge LLMs
 
-[![Research Prototype](https://img.shields.io/badge/Status-Module_4_Completed-brightgreen.svg)](#)
+[![Research Prototype](https://img.shields.io/badge/Status-Module_5_Completed-brightgreen.svg)](#)
 [![Python Version](https://img.shields.io/badge/Python-3.12-blue.svg)](#)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.10.0+cpu-orange.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#)
@@ -69,10 +69,21 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 |  - Chronological Walk-Forward Time-Series Validation & Benchmark Runner               |
 +---------------------------------------------------------------------------------------+
                                            │
-                                    (Upcoming Module 5)
+                           Forecasts & Capacity Auditing
                                            ▼
 +---------------------------------------------------------------------------------------+
-|  Module 5: Candidate Split Plans & Transition Cost Model                              |
+|  Module 5: Split Catalog & Feasible Candidate Plan Generation (src/partitioning/)     |
+|  - Structural Plan Enumerator (Monolithic, Two-Tier, Three-Tier Contiguous Splits)    |
+|  - Model Metadata & Per-Tier Parameter/KV Memory Estimator with Safety Margin         |
+|  - Provenance-Aware Feasibility Evaluator (FEASIBLE, INFEASIBLE, UNKNOWN)             |
+|  - CandidatePlan Factory & SplitCatalog Filtering (Exhaustive vs Feasible-Only)       |
+|  - Plan Comparison & Boundary Delta Analysis for Transition Cost Inputs               |
++---------------------------------------------------------------------------------------+
+                                           │
+                                    (Upcoming Module 6)
+                                           ▼
++---------------------------------------------------------------------------------------+
+|  Module 6: Cost Model & Partition Controller                                          |
 +---------------------------------------------------------------------------------------+
 ```
 
@@ -83,8 +94,10 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
   - `DataSource` tagging, zero CUDA/GPU fabrication on CPU dev environment, configurable network emulation scenarios, `TelemetryBuffer`.
 - **Module 3 (Unified Runtime State & Rolling StateBuffer):** COMPLETE (32 tests)
   - Canonical `RuntimeState`, `StateBuffer` ring buffer with trace JSON save/load, deterministic `FeatureExtractor` (22 columns, availability and provenance masks, derived growth rates, deterministic normalization).
-- **Module 4 (Predictive Forecasting Engine):** COMPLETE (26+ tests)
+- **Module 4 (Predictive Forecasting Engine):** COMPLETE (30 tests)
   - Pluggable predictors behind common `Predictor` interface, `PredictionResult` with provenance and error estimates, VRAM `UNAVAILABLE` handling without CPU RAM substitution, walk-forward validation without data leakage.
+- **Module 5 (Split Catalog & Feasible Candidate Plan Generation):** COMPLETE (82 tests)
+  - Exhaustive contiguous partition enumeration across tiers, deterministic per-tier memory estimation (weights + KV-cache + safety margins), provenance-aware feasibility evaluation (`FEASIBLE`, `INFEASIBLE`, `UNKNOWN`), delta comparison vs current plan, auditable candidate tables. Total test suite: 239 passing tests.
 
 ---
 
@@ -99,11 +112,13 @@ d:/Sanjay/B.Tech CSE/vram/
 │   ├── environment.md        # Hardware and environment inspection report
 │   ├── telemetry.md          # Runtime telemetry layer architecture and schema
 │   ├── state.md              # Canonical state, buffer invariants, and feature extraction
-│   └── prediction.md         # Predictive forecasting engine, targets, and evaluation
+│   ├── prediction.md         # Predictive forecasting engine, targets, and evaluation
+│   └── partitioning.md       # Split catalog, structural enumeration, memory estimation, feasibility
 ├── scripts/
 │   ├── run_baseline.py       # End-to-end baseline runner and parity verification
 │   ├── run_prediction_demo.py # Interactive prediction demonstration on StateBuffer
-│   └── evaluate_predictor.py # Walk-forward evaluation benchmark on traces
+│   ├── evaluate_predictor.py # Walk-forward evaluation benchmark on traces
+│   └── run_candidate_demo.py # Module 5 candidate catalog and feasibility demonstration
 ├── src/
 │   ├── config/
 │   │   └── settings.py       # Configuration management
@@ -111,17 +126,16 @@ d:/Sanjay/B.Tech CSE/vram/
 │   ├── telemetry/            # Module 2: Runtime telemetry collection & emulation
 │   ├── state/                # Module 3: Canonical state & rolling StateBuffer
 │   ├── prediction/           # Module 4: Predictive forecasting engine
-│   │   ├── base.py           # Predictor ABC and series extraction
-│   │   ├── baselines.py      # LastValue, LinearTrend, MovingAverage predictors
-│   │   ├── constraints.py    # Physical bounds and constraint clipping
-│   │   ├── evaluation.py     # Walk-forward validation and PredictionTrace
-│   │   ├── learned.py        # Ridge-regularized learned predictor
-│   │   ├── memory.py         # KV-cache-aware memory predictor & time-to-threshold
-│   │   ├── metrics.py        # MAE, RMSE, MAPE, lead-time, abrupt change detector
-│   │   ├── registry.py       # Predictor factory registry and config loader
-│   │   ├── synthetic.py      # Synthetic trace generator (9 canonical profiles)
-│   │   ├── types.py          # PredictionResult, TargetForecast dataclasses
-│   │   └── visualization.py  # Matplotlib-guarded trajectory plotting
+│   ├── partitioning/         # Module 5: Split catalog & feasible candidate plan generation
+│   │   ├── candidate.py      # CandidatePlan dataclass with active tiers & boundaries
+│   │   ├── catalog.py        # SplitCatalog generator & candidate table formatter
+│   │   ├── comparison.py     # PlanDifference & compare_plans delta analysis
+│   │   ├── feasibility.py    # FeasibilityStatus & evaluate_plan_feasibility
+│   │   ├── formatting.py     # Human-readable table formatting for audits
+│   │   ├── memory_estimator.py # TierMemoryRequirement & estimate_plan_memory
+│   │   ├── metadata.py       # ModelMetadata & TierCapacity definitions
+│   │   ├── plan_id.py        # Canonical deterministic plan ID generator
+│   │   └── structural.py     # Exhaustive contiguous partition enumerator
 │   └── utils/
 │       └── logging.py        # Structured logging utilities
 └── tests/
@@ -131,7 +145,8 @@ d:/Sanjay/B.Tech CSE/vram/
     ├── test_telemetry.py     # Telemetry collectors, emulation, & buffer tests
     ├── test_transfer.py      # Transfer telemetry tests
     ├── test_state.py         # RuntimeState, StateBuffer, & feature extraction tests
-    └── test_prediction.py    # Predictors, physical bounds, metrics, walk-forward tests
+    ├── test_prediction.py    # Predictors, physical bounds, metrics, walk-forward tests
+    └── test_partitioning.py  # Module 5 catalog, memory, feasibility, comparison tests
 ```
 
 ---
@@ -153,7 +168,7 @@ Documented in detail in `docs/environment.md`:
 
 ## 5. Running the Test Suite & Demos
 
-Execute the entire test suite across Modules 1, 2, 3, and 4:
+Execute the entire test suite across Modules 1, 2, 3, 4, and 5:
 ```bash
 python -m pytest tests/ -v
 ```
@@ -166,4 +181,9 @@ python scripts/run_prediction_demo.py
 Run walk-forward prediction benchmark on synthetic scenarios:
 ```bash
 python scripts/evaluate_predictor.py --predictor linear_trend --scenario bandwidth_degradation
+```
+
+Run the Module 5 candidate catalog & feasibility demo:
+```bash
+python scripts/run_candidate_demo.py
 ```
