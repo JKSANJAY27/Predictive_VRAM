@@ -429,7 +429,12 @@ def test_deterministic_replay():
     assert len(replayed.token_records) == len(trace1.token_records)
     assert len(replayed.cycles) == len(trace1.cycles)
     for c1, c2 in zip(trace1.cycles, replayed.cycles):
-        assert c1.control_decision.action == c2.control_decision.action
+        # control_decision is Optional — both must agree on presence (determinism)
+        assert (c1.control_decision is None) == (c2.control_decision is None), (
+            "Replay non-determinism: one cycle has a decision, the other does not"
+        )
+        if c1.control_decision is not None:
+            assert c1.control_decision.action == c2.control_decision.action
 
 
 # ---------------------------------------------------------------------------

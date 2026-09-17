@@ -116,6 +116,29 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 |  - Fast Structural & Deep Forward Verification Modes (MigrationVerifier)              |
 |  - Deterministic Exact Numerical Token Parity Preservation                            |
 +---------------------------------------------------------------------------------------+
+                                           │
+                               Transactional Migration
+                                           ▼
++---------------------------------------------------------------------------------------+
+|  Module 9: Closed-Loop Predictive Runtime Integration (src/orchestration/)            |
+|  - End-to-End Autoregressive Generation with Dynamic Re-partitioning                  |
+|  - Periodic Control Cycle Execution (Telemetry -> Predict -> Score -> Migrate)        |
+|  - Asynchronous & Synchronous Operational Handshake with Physical Runtime             |
+|  - DynamicCache KV-State Preservation Across Partition Transitions                    |
+|  - Complete RuntimeTrace Recording for All Decision Cycles and Token Latencies        |
++---------------------------------------------------------------------------------------+
+                                           │
+                               RuntimeTrace & Metrics
+                                           ▼
++---------------------------------------------------------------------------------------+
+|  Module 10: Experimental Harness, Baselines & Statistical Evaluation (src/evaluation/)|
+|  - Five Strictly Specified Research Baselines (B1 Static -> B5 Predictive)            |
+|  - Trace-First Environmental Fairness with Bit-Identical Replay Across Baselines      |
+|  - Complete Metric Suite (Inference, Memory, Stability, Overhead, Prediction, SLO)   |
+|  - Statistical Aggregation (Mean, Std, Median, 95% CI, Cohen's d, Paired Tests)       |
+|  - Component Ablation Suite (A1-A8) & Multi-Parameter Sensitivity Sweeps              |
+|  - Immutable Trial Results, Invariant Validation, and Open Research Dataset Export     |
++---------------------------------------------------------------------------------------+
 ```
 
 ### Module Status Summary
@@ -134,7 +157,11 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 - **Module 7 (Adaptive Predictive Partition Controller):** COMPLETE (66 tests)
   - Static, reactive, and predictive decision policies; anti-thrashing guardrails (cooldown, dwell time, threshold, hysteresis); safety hierarchy with emergency OOM overrides; typed `MigrationRequest` emission for Module 8; audit history and metrics.
 - **Module 8 (Physical Migration and Runtime State Transition):** COMPLETE (111 tests)
-  - All-or-nothing transactional migration lifecycle; quiescence lock management; stateful layer and KV-cache delta transfer; rollback and state restoration on injected faults; Fast and Deep verification; verified token parity before/after migration. Total test suite: 447 passing tests.
+  - All-or-nothing transactional migration lifecycle; quiescence lock management; stateful layer and KV-cache delta transfer; rollback and state restoration on injected faults; Fast and Deep verification; verified token parity before/after migration.
+- **Module 9 (Closed-Loop Predictive Runtime Integration):** COMPLETE (17 tests)
+  - Closed-loop orchestration loop; periodic control scheduling; end-to-end autoregressive generation with live migrations; complete runtime trace logging.
+- **Module 10 (Experimental Harness, Baselines, Ablations & Statistical Evaluation):** COMPLETE
+  - Five research baselines (B1-B5); deterministic trace generator & bit-identical replay; full metric suite calculation; statistical aggregation with effect sizes; A1-A8 ablation suite; sensitivity sweeper; invariant validation & sanity checking; research dataset export (CSV/JSON).
 
 ---
 
