@@ -41,3 +41,22 @@ partitions:
     user_device: [0, 11]   # Layers 0..11 (12 layers)
     edge_a: null
     edge_b: null
+
+# Predictive VRAM and Network Forecasting Configuration (Module 4)
+prediction:
+  enabled: true
+  horizon_seconds: 2.0
+  step_interval_seconds: 0.2
+  predictor:
+    type: "linear_trend"
+    minimum_history: 4
+    targets:
+      - "bandwidth_mbps"
+      - "latency_ms"
+      - "vram_free_mb"
+      - "kv_cache_bytes"
+  evaluation:
+    metrics:
+      - "mae"
+      - "rmse"
+

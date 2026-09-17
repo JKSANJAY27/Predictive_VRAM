@@ -1,6 +1,6 @@
 # Predictive VRAM & Network-Aware Dynamic Split Inference for Edge LLMs
 
-[![Research Prototype](https://img.shields.io/badge/Status-Module_3_Completed-brightgreen.svg)](#)
+[![Research Prototype](https://img.shields.io/badge/Status-Module_4_Completed-brightgreen.svg)](#)
 [![Python Version](https://img.shields.io/badge/Python-3.12-blue.svg)](#)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.10.0+cpu-orange.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#)
@@ -57,10 +57,22 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 |  - FeatureExtractor: 22 Deterministic Columns, Masks & Normalization                  |
 +---------------------------------------------------------------------------------------+
                                            │
-                                    (Upcoming Module 4)
+                             Historical State Windows
                                            ▼
 +---------------------------------------------------------------------------------------+
-|  Module 4: Predictive Forecasters (Network & VRAM Prediction)                         |
+|  Module 4: Predictive Forecasting Engine (src/prediction/)                            |
+|  - Common Predictor Protocol & Strongly Typed PredictionResult                        |
+|  - Baselines: LastValue, LinearTrend, MovingAverage                                    |
+|  - KV-Cache-Aware Memory Predictor & Time-to-Threshold Warning (tau_lead)              |
+|  - Ridge-Regularized Learned Predictor (Strict Anti-Leakage Isolation)                |
+|  - Physical Domain Bounds & Constraint Clipping Indicators                            |
+|  - Chronological Walk-Forward Time-Series Validation & Benchmark Runner               |
++---------------------------------------------------------------------------------------+
+                                           │
+                                    (Upcoming Module 5)
+                                           ▼
++---------------------------------------------------------------------------------------+
+|  Module 5: Candidate Split Plans & Transition Cost Model                              |
 +---------------------------------------------------------------------------------------+
 ```
 
@@ -69,8 +81,10 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
   - Static partition plans, 3 logical tiers, KV-cache handling, exact parity with monolithic execution.
 - **Module 2 (Runtime Telemetry Layer):** COMPLETE (76 tests)
   - `DataSource` tagging, zero CUDA/GPU fabrication on CPU dev environment, configurable network emulation scenarios, `TelemetryBuffer`.
-- **Module 3 (Unified Runtime State & Rolling StateBuffer):** COMPLETE (26+ tests)
+- **Module 3 (Unified Runtime State & Rolling StateBuffer):** COMPLETE (32 tests)
   - Canonical `RuntimeState`, `StateBuffer` ring buffer with trace JSON save/load, deterministic `FeatureExtractor` (22 columns, availability and provenance masks, derived growth rates, deterministic normalization).
+- **Module 4 (Predictive Forecasting Engine):** COMPLETE (26+ tests)
+  - Pluggable predictors behind common `Predictor` interface, `PredictionResult` with provenance and error estimates, VRAM `UNAVAILABLE` handling without CPU RAM substitution, walk-forward validation without data leakage.
 
 ---
 
@@ -84,27 +98,30 @@ d:/Sanjay/B.Tech CSE/vram/
 ├── docs/
 │   ├── environment.md        # Hardware and environment inspection report
 │   ├── telemetry.md          # Runtime telemetry layer architecture and schema
-│   └── state.md              # Canonical state, buffer invariants, and feature extraction
+│   ├── state.md              # Canonical state, buffer invariants, and feature extraction
+│   └── prediction.md         # Predictive forecasting engine, targets, and evaluation
 ├── scripts/
-│   └── run_baseline.py       # End-to-end baseline runner and parity verification
+│   ├── run_baseline.py       # End-to-end baseline runner and parity verification
+│   ├── run_prediction_demo.py # Interactive prediction demonstration on StateBuffer
+│   └── evaluate_predictor.py # Walk-forward evaluation benchmark on traces
 ├── src/
 │   ├── config/
 │   │   └── settings.py       # Configuration management
 │   ├── runtime/              # Module 1: Distributed split-inference baseline
-│   │   ├── executor.py       # Distributed autoregressive generation executor
-│   │   ├── model.py          # LayeredTransformer layer wrapper
-│   │   ├── partition.py      # PartitionPlan validation & transfer boundaries
-│   │   ├── tier.py           # Tier abstractions and metadata
-│   │   └── transfer.py       # TransferManager and TransferRecord telemetry
 │   ├── telemetry/            # Module 2: Runtime telemetry collection & emulation
-│   │   ├── buffer.py         # Rolling TelemetryBuffer
-│   │   ├── collectors.py     # Memory, CPU, KV-Cache, and Network collectors
-│   │   ├── network_emulation.py # Scenario profiles & latency estimators
-│   │   └── types.py          # DataSource, TaggedValue, TelemetrySnapshot
 │   ├── state/                # Module 3: Canonical state & rolling StateBuffer
-│   │   ├── buffer.py         # StateBuffer with causality & replay
-│   │   ├── features.py       # FeatureVector & FeatureExtractor
-│   │   └── types.py          # RuntimeState & component state dataclasses
+│   ├── prediction/           # Module 4: Predictive forecasting engine
+│   │   ├── base.py           # Predictor ABC and series extraction
+│   │   ├── baselines.py      # LastValue, LinearTrend, MovingAverage predictors
+│   │   ├── constraints.py    # Physical bounds and constraint clipping
+│   │   ├── evaluation.py     # Walk-forward validation and PredictionTrace
+│   │   ├── learned.py        # Ridge-regularized learned predictor
+│   │   ├── memory.py         # KV-cache-aware memory predictor & time-to-threshold
+│   │   ├── metrics.py        # MAE, RMSE, MAPE, lead-time, abrupt change detector
+│   │   ├── registry.py       # Predictor factory registry and config loader
+│   │   ├── synthetic.py      # Synthetic trace generator (9 canonical profiles)
+│   │   ├── types.py          # PredictionResult, TargetForecast dataclasses
+│   │   └── visualization.py  # Matplotlib-guarded trajectory plotting
 │   └── utils/
 │       └── logging.py        # Structured logging utilities
 └── tests/
@@ -113,7 +130,8 @@ d:/Sanjay/B.Tech CSE/vram/
     ├── test_runtime.py       # End-to-end split execution & parity tests
     ├── test_telemetry.py     # Telemetry collectors, emulation, & buffer tests
     ├── test_transfer.py      # Transfer telemetry tests
-    └── test_state.py         # RuntimeState, StateBuffer, & feature extraction tests
+    ├── test_state.py         # RuntimeState, StateBuffer, & feature extraction tests
+    └── test_prediction.py    # Predictors, physical bounds, metrics, walk-forward tests
 ```
 
 ---
@@ -127,20 +145,25 @@ Documented in detail in `docs/environment.md`:
 - **PyTorch:** CPU build (`2.10.0+cpu`)
 
 ### Strict Integrity Rules:
-- GPU/VRAM metrics are **never fabricated** or reported as zero. When hardware is absent, values are explicitly tagged `DataSource.UNAVAILABLE` with value `None`.
+- GPU/VRAM metrics are **never fabricated** or reported as zero. When hardware is absent, values are explicitly tagged `DataSource.UNAVAILABLE` with value `None`. CPU RAM is **never substituted** for VRAM.
 - Network conditions are explicitly tagged `DataSource.EMULATED`.
-- Test suite uses synthetic lightweight models to guarantee instant CI and 100% test execution in seconds.
+- Test suite uses synthetic lightweight models and profiles to guarantee instant CI and 100% test execution in seconds.
 
 ---
 
-## 5. Running the Test Suite
+## 5. Running the Test Suite & Demos
 
-Execute the entire test suite across Modules 1, 2, and 3:
+Execute the entire test suite across Modules 1, 2, 3, and 4:
 ```bash
 python -m pytest tests/ -v
 ```
 
-Run Module 3 tests specifically:
+Run the Module 4 interactive demo:
 ```bash
-python -m pytest tests/test_state.py -v
+python scripts/run_prediction_demo.py
+```
+
+Run walk-forward prediction benchmark on synthetic scenarios:
+```bash
+python scripts/evaluate_predictor.py --predictor linear_trend --scenario bandwidth_degradation
 ```
