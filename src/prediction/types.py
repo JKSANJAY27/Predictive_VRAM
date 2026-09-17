@@ -131,6 +131,10 @@ class PredictionResult:
     prediction_latency_ms: float = 0.0
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+    @property
+    def timestamp(self) -> float:
+        return self.prediction_timestamp
+
     def get_target(self, name: str) -> Optional[TargetForecast]:
         """Retrieve forecast for a specific target variable."""
         return self.targets.get(name)

@@ -240,6 +240,12 @@ class LayeredTransformer(nn.Module):
                     "attention_mask": torch.ones((1, len(tokens)), dtype=torch.long, device=device),
                 }
 
+            def encode(self, text: str, return_tensors: Optional[str] = None) -> Any:
+                out = self(text, return_tensors=return_tensors or "pt")["input_ids"]
+                if return_tensors is None:
+                    return out[0].tolist()
+                return out
+
             def decode(self, token_ids: Any, skip_special_tokens: bool = True) -> str:
                 if isinstance(token_ids, torch.Tensor):
                     token_ids = token_ids.tolist()

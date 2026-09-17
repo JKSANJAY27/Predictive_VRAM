@@ -162,6 +162,15 @@ class PartitionPlan:
         }
 
     @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> PartitionPlan:
+        return cls(
+            total_layers=int(data["total_layers"]),
+            user_device=tuple(data["user_device"]) if data.get("user_device") is not None else None,
+            edge_a=tuple(data["edge_a"]) if data.get("edge_a") is not None else None,
+            edge_b=tuple(data["edge_b"]) if data.get("edge_b") is not None else None,
+        )
+
+    @classmethod
     def monolithic(cls, total_layers: int) -> PartitionPlan:
         """Create a monolithic plan with all layers executing on User Device."""
         return cls(

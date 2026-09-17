@@ -1,6 +1,6 @@
 # Predictive VRAM & Network-Aware Dynamic Split Inference for Edge LLMs
 
-[![Research Prototype](https://img.shields.io/badge/Status-Module_7_Completed-brightgreen.svg)](#)
+[![Research Prototype](https://img.shields.io/badge/Status-Module_8_Completed-brightgreen.svg)](#)
 [![Python Version](https://img.shields.io/badge/Python-3.12-blue.svg)](#)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.10.0+cpu-orange.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#)
@@ -23,7 +23,7 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 - Migration / weight-switching overhead ($P_{\text{switch}}$)
 - Partition stability and oscillation avoidance (cooldown / dwell-time constraints)
 
-> **Important Boundary**: Module 6 scores candidates; Module 7 makes the keep/migrate decision.
+> **Important Boundary**: Module 6 scores candidates; Module 7 makes the keep/migrate decision; Module 8 executes the transactional migration.
 
 ---
 
@@ -105,10 +105,16 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 |  - Trace Replay Simulation & ControllerHistory Metrics Accumulator                    |
 +---------------------------------------------------------------------------------------+
                                            │
-                                  (Upcoming Module 8)
+                              Declarative MigrationRequest
                                            ▼
 +---------------------------------------------------------------------------------------+
-|  Module 8: Physical Migration & Runtime State Transition                              |
+|  Module 8: Physical Migration & Runtime State Transition (src/migration/)             |
+|  - Transactional Migration Coordinator (MigrationManager) with Lock & Quiescence      |
+|  - Plan Delta & Layer Transition Planner (MigrationPlanner)                           |
+|  - Layer Weight & KV-Cache Transfer with In-Memory Snapshots & Rollback               |
+|  - Pluggable Transfer Backends (LocalTensorTransfer & EmulatedNetworkTransfer)        |
+|  - Fast Structural & Deep Forward Verification Modes (MigrationVerifier)              |
+|  - Deterministic Exact Numerical Token Parity Preservation                            |
 +---------------------------------------------------------------------------------------+
 ```
 
@@ -126,7 +132,9 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 - **Module 6 (Cost Model and Candidate Scoring):** COMPLETE (31 tests)
   - Multi-objective composite cost calculation $J(a)$, decomposed latency, decoupled steady-state communication vs one-time switching penalty $P_{\text{switch}}$, uniform scale normalizer, ablation support, auditable score breakdowns.
 - **Module 7 (Adaptive Predictive Partition Controller):** COMPLETE (66 tests)
-  - Static, reactive, and predictive decision policies; anti-thrashing guardrails (cooldown, dwell time, threshold, hysteresis); safety hierarchy with emergency OOM overrides; typed `MigrationRequest` emission for Module 8; audit history and metrics. Total test suite: 336 passing tests.
+  - Static, reactive, and predictive decision policies; anti-thrashing guardrails (cooldown, dwell time, threshold, hysteresis); safety hierarchy with emergency OOM overrides; typed `MigrationRequest` emission for Module 8; audit history and metrics.
+- **Module 8 (Physical Migration and Runtime State Transition):** COMPLETE (111 tests)
+  - All-or-nothing transactional migration lifecycle; quiescence lock management; stateful layer and KV-cache delta transfer; rollback and state restoration on injected faults; Fast and Deep verification; verified token parity before/after migration. Total test suite: 447 passing tests.
 
 ---
 
@@ -144,7 +152,8 @@ d:/Sanjay/B.Tech CSE/vram/
 │   ├── prediction.md         # Predictive forecasting engine, targets, and evaluation
 │   ├── partitioning.md       # Split catalog, structural enumeration, memory estimation, feasibility
 │   ├── cost_model.md         # Multi-objective cost formulation, normalization, and trade-off scoring
-│   └── controller.md         # Controller decision policy, anti-thrashing, safety, and handoff
+│   ├── controller.md         # Controller decision policy, anti-thrashing, safety, and handoff
+│   └── migration.md          # Physical migration, transactional execution, and rollback
 ├── scripts/
 │   ├── run_baseline.py       # End-to-end baseline runner and parity verification
 │   ├── run_prediction_demo.py # Interactive prediction demonstration on StateBuffer
@@ -152,7 +161,9 @@ d:/Sanjay/B.Tech CSE/vram/
 │   ├── run_candidate_demo.py # Module 5 candidate catalog and feasibility demonstration
 │   ├── run_cost_demo.py      # Module 6 cost model and multi-objective scoring demonstration
 │   ├── run_controller_demo.py # Module 7 controller demonstration across modes and guards
-│   └── evaluate_controller.py # Module 7 benchmark runner across synthetic scenarios
+│   ├── evaluate_controller.py # Module 7 benchmark runner across synthetic scenarios
+│   ├── run_migration_demo.py # Module 8 end-to-end physical migration and token parity demo
+│   └── run_migration_failure_demo.py # Module 8 failure injection and transactional rollback demo
 ├── src/
 │   ├── config/
 │   │   └── settings.py       # Configuration management
@@ -168,6 +179,16 @@ d:/Sanjay/B.Tech CSE/vram/
 │   │   ├── stability.py      # StabilityChecker and StabilityResult (anti-thrashing)
 │   │   ├── history.py        # ControllerHistory tracking and metrics aggregation
 │   │   └── controller.py     # AdaptivePartitionController orchestrator
+│   ├── migration/            # Module 8: Physical migration & runtime state transition
+│   │   ├── types.py          # MigrationStatus, MigrationMode, MigrationConfig, MigrationResult
+│   │   ├── validator.py      # MigrationValidator (idempotency, stale request, bounds checks)
+│   │   ├── planner.py        # MigrationPlanner (plan delta, layer transition mapping)
+│   │   ├── transfer.py       # Transfer backends (LocalTensorTransfer, EmulatedNetworkTransfer)
+│   │   ├── state.py          # LayerTransferManager & KVCacheTransferManager with backup snapshots
+│   │   ├── verifier.py       # MigrationVerifier (Fast structural & Deep forward pass checks)
+│   │   ├── rollback.py       # RollbackManager (atomic restoration of layers and KV-cache)
+│   │   ├── adapter.py        # RuntimeAdapter (facade over DistributedInferenceExecutor)
+│   │   └── manager.py        # MigrationManager (transactional state machine coordinator)
 │   └── utils/
 │       └── logging.py        # Structured logging utilities
 └── tests/
@@ -180,7 +201,8 @@ d:/Sanjay/B.Tech CSE/vram/
     ├── test_prediction.py    # Predictors, physical bounds, metrics, walk-forward tests
     ├── test_partitioning.py  # Module 5 catalog, memory, feasibility, comparison tests
     ├── test_cost.py          # Module 6 weights, normalization, latency, comm, memory, switching tests
-    └── test_controller.py    # Module 7 modes, threshold, dwell, cooldown, hysteresis, safety tests
+    ├── test_controller.py    # Module 7 modes, threshold, dwell, cooldown, hysteresis, safety tests
+    └── test_migration.py     # Module 8 lifecycle, planning, transfer, verification, rollback tests
 ```
 
 ---
@@ -202,7 +224,7 @@ Documented in detail in `docs/environment.md`:
 
 ## 5. Running the Test Suite & Demos
 
-Execute the entire test suite across Modules 1, 2, 3, 4, 5, and 6:
+Execute the entire test suite across Modules 1 through 8 (447 tests):
 ```bash
 python -m pytest tests/ -v
 ```
@@ -225,4 +247,19 @@ python scripts/run_candidate_demo.py
 Run the Module 6 cost model demonstration:
 ```bash
 python scripts/run_cost_demo.py
+```
+
+Run the Module 7 controller demonstration:
+```bash
+python scripts/run_controller_demo.py
+```
+
+Run the Module 8 physical migration and token parity demo:
+```bash
+python scripts/run_migration_demo.py
+```
+
+Run the Module 8 failure injection and transactional rollback demo:
+```bash
+python scripts/run_migration_failure_demo.py
 ```

@@ -55,7 +55,10 @@ class CostModel:
         calibration: Optional[CostModelCalibration] = None,
         tier_capacities: Optional[Dict[TierId, TierCapacity]] = None,
     ) -> None:
-        self.weights = weights or CostWeights()
+        if isinstance(weights, dict):
+            self.weights = CostWeights.from_dict(weights)
+        else:
+            self.weights = weights or CostWeights()
         self.normalization_config = normalization_config or NormalizationConfig()
         self.calibration = calibration or CostModelCalibration()
         self.tier_capacities = tier_capacities or {}

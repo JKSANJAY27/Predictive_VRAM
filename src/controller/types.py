@@ -93,6 +93,25 @@ class MigrationRequest:
             "target_plan": self.target_plan.to_dict(),
         }
 
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> MigrationRequest:
+        src = PartitionPlan.from_dict(data["source_plan"]) if "source_plan" in data and isinstance(data["source_plan"], dict) else PartitionPlan.monolithic(12)
+        tgt = PartitionPlan.from_dict(data["target_plan"]) if "target_plan" in data and isinstance(data["target_plan"], dict) else PartitionPlan.monolithic(12)
+        return cls(
+            source_plan=src,
+            target_plan=tgt,
+            source_plan_id=data.get("source_plan_id", ""),
+            target_plan_id=data.get("target_plan_id", ""),
+            expected_gain=float(data.get("expected_gain", 0.0)),
+            switching_cost=float(data.get("switching_cost", 0.0)),
+            controller_cycle=int(data.get("controller_cycle", 0)),
+            timestamp=float(data.get("timestamp", 0.0)),
+            changed_layers=data.get("changed_layers", []),
+            affected_tiers=data.get("affected_tiers", []),
+            estimated_kv_transfer_bytes=int(data.get("estimated_kv_transfer_bytes", 0)),
+            reason=data.get("reason", ""),
+        )
+
 
 @dataclass(frozen=True)
 class ControlDecision:
@@ -139,6 +158,30 @@ class ControlDecision:
             "stability_status": self.stability_status,
             "migration_request": self.migration_request.to_dict() if self.migration_request else None,
         }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> ControlDecision:
+        mig_req = MigrationRequest.from_dict(data["migration_request"]) if data.get("migration_request") else None
+        return cls(
+            action=ControlAction(data["action"]),
+            current_plan_id=data["current_plan_id"],
+            selected_plan_id=data["selected_plan_id"],
+            current_cost=float(data["current_cost"]),
+            selected_cost=float(data["selected_cost"]),
+            expected_gain=float(data["expected_gain"]),
+            threshold=float(data["threshold"]),
+            switch_allowed=bool(data["switch_allowed"]),
+            reason=DecisionReason(data["reason"]),
+            explanation=data.get("explanation", ""),
+            timestamp=float(data["timestamp"]),
+            controller_cycle=int(data["controller_cycle"]),
+            prediction_used=bool(data["prediction_used"]),
+            is_proactive=bool(data.get("is_proactive", False)),
+            is_safety_override=bool(data.get("is_safety_override", False)),
+            safety_status=SafetyStatus(data.get("safety_status", SafetyStatus.SAFE.value)),
+            stability_status=data.get("stability_status", {}),
+            migration_request=mig_req,
+        )
 
 
 @dataclass
