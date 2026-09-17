@@ -1,0 +1,13 @@
+# Baseline Model Configuration
+model:
+  identifier: "gpt2"
+  name: "OpenAI GPT-2 Small"
+  architecture: "GPT2LMHeadModel"
+  num_layers: 12
+  hidden_size: 768
+  num_attention_heads: 12
+  vocab_size: 50257
+  max_context_length: 1024
+  default_dtype: "float32"
+  device_map: "cpu"
+  approximate_parameters: 124439808

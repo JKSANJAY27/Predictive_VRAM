@@ -1,0 +1,43 @@
+# Runtime Baseline Configuration for Distributed Split Inference
+model:
+  identifier: "gpt2"
+  device: "cpu"
+  dtype: "float32"
+
+generation:
+  prompt: "The future of distributed edge computing and predictive resource allocation"
+  max_new_tokens: 16
+  temperature: 0.0
+  do_sample: false
+  seed: 42
+
+tiers:
+  user_device:
+    name: "User Device (Mobile/IoT)"
+    device: "cpu"
+  edge_a:
+    name: "Edge Node A (Local Aggregator)"
+    device: "cpu"
+  edge_b:
+    name: "Edge Node B (Regional Edge Server)"
+    device: "cpu"
+
+# Supported static partition schemes for 12-layer model:
+partitions:
+  three_tier:
+    description: "Even distribution across User Device, Edge A, and Edge B"
+    user_device: [0, 3]    # Layers 0, 1, 2, 3 (4 layers)
+    edge_a: [4, 7]         # Layers 4, 5, 6, 7 (4 layers)
+    edge_b: [8, 11]        # Layers 8, 9, 10, 11 (4 layers)
+
+  two_tier:
+    description: "Partitioned across User Device and Edge A"
+    user_device: [0, 5]    # Layers 0..5 (6 layers)
+    edge_a: [6, 11]        # Layers 6..11 (6 layers)
+    edge_b: null
+
+  monolithic_local:
+    description: "All layers executed on User Device"
+    user_device: [0, 11]   # Layers 0..11 (12 layers)
+    edge_a: null
+    edge_b: null
