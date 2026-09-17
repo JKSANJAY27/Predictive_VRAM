@@ -60,3 +60,35 @@ prediction:
       - "mae"
       - "rmse"
 
+# Cost Model and Candidate Scoring Configuration (Module 6)
+cost:
+  weights:
+    latency: 1.0          # alpha
+    communication: 0.2    # beta
+    memory_pressure: 1.0  # gamma
+    energy: 0.1           # delta
+    switching: 1.0        # epsilon
+
+  normalization:
+    latency_scale_ms: 100.0
+    communication_scale_mb: 10.0
+    memory_pressure_scale: 1.0
+    energy_scale_j: 10.0
+    switching_scale: 1.0
+
+  switching:
+    per_layer_cost: 0.1
+    boundary_shift_cost: 0.2
+    kv_transfer_cost_per_mb: 0.05
+    tier_disruption_cost: 0.5
+
+  memory:
+    safety_margin_mb: 256.0
+    risk_threshold_ratio: 0.85
+
+  energy:
+    power_proxies_watts:
+      user_device: 5.0
+      edge_a: 45.0
+      edge_b: 150.0
+

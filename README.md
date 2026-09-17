@@ -1,6 +1,6 @@
 # Predictive VRAM & Network-Aware Dynamic Split Inference for Edge LLMs
 
-[![Research Prototype](https://img.shields.io/badge/Status-Module_5_Completed-brightgreen.svg)](#)
+[![Research Prototype](https://img.shields.io/badge/Status-Module_6_Completed-brightgreen.svg)](#)
 [![Python Version](https://img.shields.io/badge/Python-3.12-blue.svg)](#)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.10.0+cpu-orange.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#)
@@ -22,6 +22,8 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 - Short-horizon VRAM pressure & KV-cache growth projection
 - Migration / weight-switching overhead ($P_{\text{switch}}$)
 - Partition stability and oscillation avoidance (cooldown / dwell-time constraints)
+
+> **Important Boundary**: Module 6 scores candidates; Module 7 makes the keep/migrate decision.
 
 ---
 
@@ -80,10 +82,21 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 |  - Plan Comparison & Boundary Delta Analysis for Transition Cost Inputs               |
 +---------------------------------------------------------------------------------------+
                                            │
-                                    (Upcoming Module 6)
+                              Candidate Plans & Forecasts
                                            ▼
 +---------------------------------------------------------------------------------------+
-|  Module 6: Cost Model & Partition Controller                                          |
+|  Module 6: Cost Model & Candidate Scoring (src/cost/)                                 |
+|  - Composite Objective: J(a) = alpha*L + beta*C + gamma*M + delta*E + epsilon*P_switch|
+|  - Decomposed Latency (L_compute + L_comm + L_queue) & Separate Steady-State Comm C(a)|
+|  - Multi-Horizon Memory Pressure M(a) with UNKNOWN VRAM Preservation                  |
+|  - Structural Transition Penalty P_switch(a) using PlanDifference (0 for identical)  |
+|  - Uniform Scaling Normalization & Ablation Presets (Reactive, Latency, No-Switch)    |
++---------------------------------------------------------------------------------------+
+                                           │
+                                    (Upcoming Module 7)
+                                           ▼
++---------------------------------------------------------------------------------------+
+|  Module 7: Adaptive Partition Controller (Keep vs Migrate Decision)                  |
 +---------------------------------------------------------------------------------------+
 ```
 
@@ -97,7 +110,9 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 - **Module 4 (Predictive Forecasting Engine):** COMPLETE (30 tests)
   - Pluggable predictors behind common `Predictor` interface, `PredictionResult` with provenance and error estimates, VRAM `UNAVAILABLE` handling without CPU RAM substitution, walk-forward validation without data leakage.
 - **Module 5 (Split Catalog & Feasible Candidate Plan Generation):** COMPLETE (82 tests)
-  - Exhaustive contiguous partition enumeration across tiers, deterministic per-tier memory estimation (weights + KV-cache + safety margins), provenance-aware feasibility evaluation (`FEASIBLE`, `INFEASIBLE`, `UNKNOWN`), delta comparison vs current plan, auditable candidate tables. Total test suite: 239 passing tests.
+  - Exhaustive contiguous partition enumeration across tiers, deterministic per-tier memory estimation (weights + KV-cache + safety margins), provenance-aware feasibility evaluation (`FEASIBLE`, `INFEASIBLE`, `UNKNOWN`), delta comparison vs current plan, auditable candidate tables.
+- **Module 6 (Cost Model and Candidate Scoring):** COMPLETE (31 tests)
+  - Multi-objective composite cost calculation $J(a)$, decomposed latency, decoupled steady-state communication vs one-time switching penalty $P_{\text{switch}}$, uniform scale normalizer, ablation support, auditable score breakdowns. Total test suite: 270 passing tests.
 
 ---
 
@@ -113,12 +128,14 @@ d:/Sanjay/B.Tech CSE/vram/
 │   ├── telemetry.md          # Runtime telemetry layer architecture and schema
 │   ├── state.md              # Canonical state, buffer invariants, and feature extraction
 │   ├── prediction.md         # Predictive forecasting engine, targets, and evaluation
-│   └── partitioning.md       # Split catalog, structural enumeration, memory estimation, feasibility
+│   ├── partitioning.md       # Split catalog, structural enumeration, memory estimation, feasibility
+│   └── cost_model.md         # Multi-objective cost formulation, normalization, and trade-off scoring
 ├── scripts/
 │   ├── run_baseline.py       # End-to-end baseline runner and parity verification
 │   ├── run_prediction_demo.py # Interactive prediction demonstration on StateBuffer
 │   ├── evaluate_predictor.py # Walk-forward evaluation benchmark on traces
-│   └── run_candidate_demo.py # Module 5 candidate catalog and feasibility demonstration
+│   ├── run_candidate_demo.py # Module 5 candidate catalog and feasibility demonstration
+│   └── run_cost_demo.py      # Module 6 cost model and multi-objective scoring demonstration
 ├── src/
 │   ├── config/
 │   │   └── settings.py       # Configuration management
@@ -127,15 +144,15 @@ d:/Sanjay/B.Tech CSE/vram/
 │   ├── state/                # Module 3: Canonical state & rolling StateBuffer
 │   ├── prediction/           # Module 4: Predictive forecasting engine
 │   ├── partitioning/         # Module 5: Split catalog & feasible candidate plan generation
-│   │   ├── candidate.py      # CandidatePlan dataclass with active tiers & boundaries
-│   │   ├── catalog.py        # SplitCatalog generator & candidate table formatter
-│   │   ├── comparison.py     # PlanDifference & compare_plans delta analysis
-│   │   ├── feasibility.py    # FeasibilityStatus & evaluate_plan_feasibility
-│   │   ├── formatting.py     # Human-readable table formatting for audits
-│   │   ├── memory_estimator.py # TierMemoryRequirement & estimate_plan_memory
-│   │   ├── metadata.py       # ModelMetadata & TierCapacity definitions
-│   │   ├── plan_id.py        # Canonical deterministic plan ID generator
-│   │   └── structural.py     # Exhaustive contiguous partition enumerator
+│   ├── cost/                 # Module 6: Cost model and candidate scoring
+│   │   ├── types.py          # CostWeights, CostBreakdown, CandidateScore, CostModelCalibration
+│   │   ├── normalization.py  # Uniform scale normalizer for cross-metric comparability
+│   │   ├── latency.py        # Decomposed latency cost model (compute, comm, queue)
+│   │   ├── communication.py  # Steady-state activation transfer cost model
+│   │   ├── memory.py         # Multi-horizon memory pressure and headroom cost model
+│   │   ├── energy.py         # Modeled power-proxy energy estimation
+│   │   ├── switching.py      # Structural repartitioning penalty model (P_switch)
+│   │   └── model.py          # Master CostModel coordinator and table formatter
 │   └── utils/
 │       └── logging.py        # Structured logging utilities
 └── tests/
@@ -146,7 +163,8 @@ d:/Sanjay/B.Tech CSE/vram/
     ├── test_transfer.py      # Transfer telemetry tests
     ├── test_state.py         # RuntimeState, StateBuffer, & feature extraction tests
     ├── test_prediction.py    # Predictors, physical bounds, metrics, walk-forward tests
-    └── test_partitioning.py  # Module 5 catalog, memory, feasibility, comparison tests
+    ├── test_partitioning.py  # Module 5 catalog, memory, feasibility, comparison tests
+    └── test_cost.py          # Module 6 weights, normalization, latency, comm, memory, switching tests
 ```
 
 ---
@@ -168,7 +186,7 @@ Documented in detail in `docs/environment.md`:
 
 ## 5. Running the Test Suite & Demos
 
-Execute the entire test suite across Modules 1, 2, 3, 4, and 5:
+Execute the entire test suite across Modules 1, 2, 3, 4, 5, and 6:
 ```bash
 python -m pytest tests/ -v
 ```
@@ -186,4 +204,9 @@ python scripts/evaluate_predictor.py --predictor linear_trend --scenario bandwid
 Run the Module 5 candidate catalog & feasibility demo:
 ```bash
 python scripts/run_candidate_demo.py
+```
+
+Run the Module 6 cost model demonstration:
+```bash
+python scripts/run_cost_demo.py
 ```
