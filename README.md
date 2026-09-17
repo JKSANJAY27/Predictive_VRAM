@@ -1,6 +1,6 @@
 # Predictive VRAM & Network-Aware Dynamic Split Inference for Edge LLMs
 
-[![Research Prototype](https://img.shields.io/badge/Status-Module_1_Completed-brightgreen.svg)](#)
+[![Research Prototype](https://img.shields.io/badge/Status-Module_3_Completed-brightgreen.svg)](#)
 [![Python Version](https://img.shields.io/badge/Python-3.12-blue.svg)](#)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.10.0+cpu-orange.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#)
@@ -25,65 +25,100 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 
 ---
 
-## 2. Current Implementation Status: Module 1
+## 2. Implementation Progress & Architecture
 
-**Module Name:** `Distributed Split-Inference Baseline`  
-**Current State:** Fully implemented, verified, and benchmarked.
+```
+                                  PIPELINE ARCHITECTURE
+                                  
++---------------------------------------------------------------------------------------+
+|  Module 1: Distributed Split-Inference Baseline (src/runtime/)                        |
+|  - Three-Tier Topology (UserDevice -> EdgeA -> EdgeB)                                 |
+|  - Contiguous Layer Partitioning & Transfer Boundaries                                |
+|  - Autoregressive Generation & DynamicCache KV-State Preservation                     |
++---------------------------------------------------------------------------------------+
+                                           │
+                           (Execution Hooks & Callbacks)
+                                           ▼
++---------------------------------------------------------------------------------------+
+|  Module 2: Runtime Telemetry Layer (src/telemetry/)                                   |
+|  - Physical RAM / CPU Metrics via psutil (MEASURED)                                   |
+|  - Synthetic Network Emulation (EMULATED: Bandwidth, RTT, Loss, Jitter)               |
+|  - KV-Cache & Activation Transfer Telemetry                                           |
+|  - Strict DataSource Provenance (MEASURED, ESTIMATED, EMULATED, UNAVAILABLE)          |
++---------------------------------------------------------------------------------------+
+                                           │
+                              TelemetrySnapshot Stream
+                                           ▼
++---------------------------------------------------------------------------------------+
+|  Module 3: Unified Runtime State & Rolling StateBuffer (src/state/)                   |
+|  - Canonical State Tuple S_t: <B_t, L_t, P_t, J_t, V_t, F_t, R_t, G_t, C_t, K_t...>  |
+|  - Physical Domain Validation & Missing Value Preservation (Never Impute 0)           |
+|  - StateBuffer: Fixed-Capacity Ring Buffer with Chronological Causality & Replay      |
+|  - FeatureExtractor: 22 Deterministic Columns, Masks & Normalization                  |
++---------------------------------------------------------------------------------------+
+                                           │
+                                    (Upcoming Module 4)
+                                           ▼
++---------------------------------------------------------------------------------------+
+|  Module 4: Predictive Forecasters (Network & VRAM Prediction)                         |
++---------------------------------------------------------------------------------------+
+```
 
-This module delivers the fundamental distributed inference foundation:
-- **Three-Tier Topology (`Tier`, `TierId`)**: Formal representation of `UserDevice`, `EdgeA`, and `EdgeB`.
-- **Partition Plan Abstraction (`PartitionPlan`, `TransferBoundary`)**: Validated contiguous layer partitioning across tiers, supporting monolithic, 2-tier, and 3-tier splits with strict error checking.
-- **Layered Transformer Decomposition (`LayeredTransformer`)**: Deconstructed autoregressive transformer blocks with support for block-range forward execution and KV-cache tracking.
-- **Transfer Boundary Tracking (`TransferManager`, `TransferRecord`)**: Explicit, observable inter-tier tensor communication tracking transfer count, tensor shapes, and byte volumes.
-- **Autoregressive Distributed Executor (`DistributedInferenceExecutor`)**: Prefill and token-by-token decoding across arbitrary tier boundaries with state preservation.
-- **Deterministic Parity Guarantee**: Validated byte-for-byte and token-for-token equality between local monolithic execution and distributed split execution under deterministic settings.
-
-> **Important Boundary Notice:**  
-> Module 1 implements **only** the baseline distributed inference runtime. Forecasting, cost modeling, adaptive controllers, hysteresis, and migration managers are intentionally deferred to future modules.
+### Module Status Summary
+- **Module 1 (Distributed Split-Inference Baseline):** COMPLETE (19 tests)
+  - Static partition plans, 3 logical tiers, KV-cache handling, exact parity with monolithic execution.
+- **Module 2 (Runtime Telemetry Layer):** COMPLETE (76 tests)
+  - `DataSource` tagging, zero CUDA/GPU fabrication on CPU dev environment, configurable network emulation scenarios, `TelemetryBuffer`.
+- **Module 3 (Unified Runtime State & Rolling StateBuffer):** COMPLETE (26+ tests)
+  - Canonical `RuntimeState`, `StateBuffer` ring buffer with trace JSON save/load, deterministic `FeatureExtractor` (22 columns, availability and provenance masks, derived growth rates, deterministic normalization).
 
 ---
 
-## 3. Architecture Overview
+## 3. Project Directory Structure
 
-```
-[Prompt] ──> [Tier: UserDevice] ──> [Transfer Boundary 1] ──> [Tier: EdgeNodeA] ──> [Transfer Boundary 2] ──> [Tier: EdgeNodeB]
-                Layers 0..3             (Hidden States)           Layers 4..7             (Hidden States)           Layers 8..11
-                + Embeddings                                                                                       + Head & Norm
-                     │                                         │                                         │
-                 [KV Cache 0..3]                           [KV Cache 4..7]                           [KV Cache 8..11]
-```
-
-### Module Directory Structure
 ```
 d:/Sanjay/B.Tech CSE/vram/
 ├── configs/
 │   ├── baseline.yaml         # Execution parameters, tier configs, and split presets
 │   └── model.yaml            # Target model specs (GPT-2, 12 layers, 124M params)
 ├── docs/
-│   └── environment.md        # Hardware and environment inspection report
+│   ├── environment.md        # Hardware and environment inspection report
+│   ├── telemetry.md          # Runtime telemetry layer architecture and schema
+│   └── state.md              # Canonical state, buffer invariants, and feature extraction
 ├── scripts/
 │   └── run_baseline.py       # End-to-end baseline runner and parity verification
 ├── src/
 │   ├── config/
-│   │   └── settings.py       # YAML parser and configuration management
-│   ├── runtime/
+│   │   └── settings.py       # Configuration management
+│   ├── runtime/              # Module 1: Distributed split-inference baseline
 │   │   ├── executor.py       # Distributed autoregressive generation executor
 │   │   ├── model.py          # LayeredTransformer layer wrapper
 │   │   ├── partition.py      # PartitionPlan validation & transfer boundaries
 │   │   ├── tier.py           # Tier abstractions and metadata
 │   │   └── transfer.py       # TransferManager and TransferRecord telemetry
+│   ├── telemetry/            # Module 2: Runtime telemetry collection & emulation
+│   │   ├── buffer.py         # Rolling TelemetryBuffer
+│   │   ├── collectors.py     # Memory, CPU, KV-Cache, and Network collectors
+│   │   ├── network_emulation.py # Scenario profiles & latency estimators
+│   │   └── types.py          # DataSource, TaggedValue, TelemetrySnapshot
+│   ├── state/                # Module 3: Canonical state & rolling StateBuffer
+│   │   ├── buffer.py         # StateBuffer with causality & replay
+│   │   ├── features.py       # FeatureVector & FeatureExtractor
+│   │   └── types.py          # RuntimeState & component state dataclasses
 │   └── utils/
-│       └── logging.py        # Structured console logging
+│       └── logging.py        # Structured logging utilities
 └── tests/
     ├── conftest.py           # Synthetic models and shared fixtures
-    ├── test_partition.py     # Partition validation tests (gaps, overlaps, bounds)
-    ├── test_runtime.py       # Integration tests & deterministic parity checks
-    └── test_transfer.py      # Tensor transfer telemetry tests
+    ├── test_partition.py     # Partition validation tests
+    ├── test_runtime.py       # End-to-end split execution & parity tests
+    ├── test_telemetry.py     # Telemetry collectors, emulation, & buffer tests
+    ├── test_transfer.py      # Transfer telemetry tests
+    └── test_state.py         # RuntimeState, StateBuffer, & feature extraction tests
 ```
 
 ---
 
-## 4. Hardware Environment & Known Limitations
+## 4. Hardware Environment & Constraints
 
 Documented in detail in `docs/environment.md`:
 - **Host CPU:** Intel Core i5-4200U (2 Cores, 4 Threads @ 1.60GHz)
@@ -91,72 +126,21 @@ Documented in detail in `docs/environment.md`:
 - **Host GPU:** Integrated Intel HD Graphics (No discrete CUDA GPU)
 - **PyTorch:** CPU build (`2.10.0+cpu`)
 
-### Implications:
-- The system supports both **Multi-GPU / Multi-Node** and **Single-Node Emulated Multi-Tier** configurations. On this host, tiers run as separate execution contexts on CPU with explicit boundary tracking and tensor movement.
-- Model selection is pinned to `gpt2` (124M parameters) to fit comfortably within the ~1.5 GB free RAM threshold without memory thrashing.
-- For lightning-fast CI and unit tests, a synthetic 4-layer transformer is used, ensuring tests finish in under 2 seconds without external network dependencies.
+### Strict Integrity Rules:
+- GPU/VRAM metrics are **never fabricated** or reported as zero. When hardware is absent, values are explicitly tagged `DataSource.UNAVAILABLE` with value `None`.
+- Network conditions are explicitly tagged `DataSource.EMULATED`.
+- Test suite uses synthetic lightweight models to guarantee instant CI and 100% test execution in seconds.
 
 ---
 
-## 5. Installation & Setup
+## 5. Running the Test Suite
 
-### Prerequisites
-- Python 3.10+ (tested on Python 3.12.4)
-- Git
-
-### Setup Steps
+Execute the entire test suite across Modules 1, 2, and 3:
 ```bash
-# Clone the repository
-git clone https://github.com/JKSANJAY27/Predictive_VRAM.git
-cd Predictive_VRAM
-
-# Install dependencies
-pip install torch transformers pyyaml pytest
+python -m pytest tests/ -v
 ```
 
----
-
-## 6. Running the Baseline & Tests
-
-### Run Unit and Integration Tests
+Run Module 3 tests specifically:
 ```bash
-pytest -v tests
+python -m pytest tests/test_state.py -v
 ```
-
-### Run the Distributed Split-Inference Baseline
-```bash
-python scripts/run_baseline.py
-```
-
-Options:
-- `--split-mode compare_all`: Runs Monolithic, Two-Tier, and Three-Tier consecutively, comparing token parity.
-- `--split-mode three_tier`: Runs exclusively on the 3-tier split.
-- `--prompt "Your custom prompt"`: Custom prompt input.
-- `--max-new-tokens 16`: Adjust generated length.
-
-Example output:
-```text
-===========================================================================
-  CORRECTNESS VERIFICATION: LOCAL vs SPLIT INFERENCE
-===========================================================================
-Comparison: Monolithic (Fully Local) vs Two-Tier Split:
-  - Token Match:      True
-  - Text Match:       True
-  - Status:           PASSED (Deterministic Exact Match)
-Comparison: Monolithic (Fully Local) vs Three-Tier Split:
-  - Token Match:      True
-  - Text Match:       True
-  - Status:           PASSED (Deterministic Exact Match)
-
-[SUCCESS] Baseline split-inference verification completed with zero discrepancies!
-```
-
----
-
-## 7. Next Step: Module 2 Preview
-
-The next planned module is **Module 2: Runtime Telemetry**, which will introduce the `TelemetryAgent` to collect:
-- Host memory and VRAM state ($V_t, F_t$)
-- Network bandwidth, latency, and packet loss ($B_t, L_t, P_t$)
-- KV-cache memory usage ($K_t$) and token state ($T_t$)
-- Compute load ($G_t$) and energy proxy ($E_t$)
