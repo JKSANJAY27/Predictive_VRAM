@@ -3,13 +3,19 @@ Distributed split-inference executor for autoregressive Transformers.
 
 Orchestrates forward execution across execution tiers, coordinates inter-tier
 tensor transfers, maintains KV-cache state, and generates output tokens.
+
+Module 2 extension:
+    The generate() method accepts an optional `telemetry_buffer` parameter.
+    When supplied, system telemetry (memory, CPU, activations, KV-cache,
+    network conditions) is collected at every autoregressive step and pushed
+    to the buffer. When None (the default), behaviour is identical to Module 1.
 """
 
 from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import torch
 
@@ -18,11 +24,21 @@ from src.runtime.partition import PartitionPlan
 from src.runtime.tier import Tier, TierId
 from src.runtime.transfer import TransferManager, TransferRecord
 
+# Telemetry imports — guarded so Module 1 code paths remain unaffected
+if TYPE_CHECKING:
+    from src.telemetry.buffer import TelemetryBuffer
+
 
 @dataclass
 class GenerationResult:
     """
     Structured outcome of an autoregressive inference run.
+
+    Module 2 additions (backward-compatible):
+        telemetry_snapshot_count: Number of TelemetrySnapshots collected during
+            this run (0 when telemetry_buffer was not supplied).
+        telemetry_buffer: Reference to the live TelemetryBuffer used during this
+            run, or None if telemetry was disabled.
     """
     prompt: str
     generated_text: str
@@ -41,6 +57,9 @@ class GenerationResult:
     total_transfer_bytes: int
     kv_cache_summary: Dict[str, Any]
     metadata: Dict[str, Any] = field(default_factory=dict)
+    # Module 2 — telemetry fields (default values preserve backward compatibility)
+    telemetry_snapshot_count: int = 0
+    telemetry_buffer: Optional[Any] = None  # Optional[TelemetryBuffer]
 
     @property
     def tokens_per_second(self) -> float:
@@ -71,6 +90,8 @@ class GenerationResult:
             "total_transfer_bytes": self.total_transfer_bytes,
             "kv_cache_summary": self.kv_cache_summary,
             "metadata": self.metadata,
+            # Module 2
+            "telemetry_snapshot_count": self.telemetry_snapshot_count,
         }
 
 
@@ -114,6 +135,7 @@ class DistributedInferenceExecutor:
         temperature: float = 0.0,
         do_sample: bool = False,
         eos_token_id: Optional[int] = None,
+        telemetry_buffer: Optional[Any] = None,  # Optional[TelemetryBuffer]
     ) -> GenerationResult:
         """
         Execute split autoregressive generation for the given prompt under the partition plan.
@@ -125,10 +147,31 @@ class DistributedInferenceExecutor:
             temperature: Sampling temperature (0.0 = deterministic greedy).
             do_sample: Whether to use sampling (greedy if False).
             eos_token_id: Optional stopping token ID.
+            telemetry_buffer: Optional TelemetryBuffer. When provided, a
+                TelemetrySnapshot is collected and pushed at every generation
+                step. When None (default), no telemetry overhead is incurred
+                and behaviour is identical to Module 1.
 
         Returns:
-            GenerationResult containing generated text, timings, and transfer telemetry.
+            GenerationResult containing generated text, timings, transfer
+            telemetry, and (if enabled) a reference to the telemetry buffer.
         """
+        # Lazily import telemetry components only when a buffer is supplied
+        _telemetry_enabled = telemetry_buffer is not None
+        if _telemetry_enabled:
+            from src.telemetry.collectors import (
+                MemoryCollector,
+                CPUCollector,
+                ActivationCollector,
+                KVCacheCollector,
+                NetworkConditionCollector,
+            )
+            from src.telemetry.types import TelemetrySnapshot
+            _mem_collector  = MemoryCollector()
+            _cpu_collector  = CPUCollector()
+            _act_collector  = ActivationCollector()
+            _kv_collector   = KVCacheCollector()
+            _net_collector  = NetworkConditionCollector()
         start_wall_time = time.time()
         self.transfer_manager.clear_history()
         self._setup_tiers_for_plan(partition_plan)
@@ -164,6 +207,14 @@ class DistributedInferenceExecutor:
         for step in range(max_new_tokens):
             step_start_time = time.time()
 
+            # --- Telemetry: pre-step memory + CPU snapshot ---
+            _step_mem_snap = None
+            _step_cpu_snap = None
+            _step_act_snaps: List[Any] = []
+            if _telemetry_enabled:
+                _step_mem_snap = _mem_collector.collect()
+                _step_cpu_snap = _cpu_collector.collect()
+
             # A. Embedding (at the first tier)
             hidden_states = self.model.embed(
                 current_input_ids,
@@ -176,6 +227,17 @@ class DistributedInferenceExecutor:
                 if i > 0:
                     prev_tier_id, _ = active_tiers[i - 1]
                     target_device = self.tiers[tier_id].device
+
+                    # --- Telemetry: capture activation before transfer ---
+                    if _telemetry_enabled:
+                        act_snap = _act_collector.collect(
+                            tensor=hidden_states,
+                            source_tier=prev_tier_id.value,
+                            destination_tier=tier_id.value,
+                            step=step,
+                        )
+                        _step_act_snaps.append(act_snap)
+
                     hidden_states = self.transfer_manager.transfer(
                         tensor=hidden_states,
                         source_tier=prev_tier_id,
@@ -219,6 +281,22 @@ class DistributedInferenceExecutor:
                 ttft = step_duration
             else:
                 inter_token_latencies.append(step_duration)
+
+            # --- Telemetry: post-step KV-cache + network + push snapshot ---
+            if _telemetry_enabled:
+                _step_kv_snap  = _kv_collector.collect(kv_cache, step=step)
+                _step_net_snap = _net_collector.collect()
+                _composite = TelemetrySnapshot(
+                    step=step,
+                    timestamp=time.monotonic(),
+                    memory=_step_mem_snap,
+                    cpu=_step_cpu_snap,
+                    kv_cache=_step_kv_snap,
+                    network=_step_net_snap,
+                    activations=list(_step_act_snaps),
+                    metadata={"step_duration_s": step_duration},
+                )
+                telemetry_buffer.push(_composite)
 
             if eos_token_id is not None and next_token_int == eos_token_id:
                 break
@@ -276,4 +354,9 @@ class DistributedInferenceExecutor:
             total_transfers=self.transfer_manager.total_transfers,
             total_transfer_bytes=self.transfer_manager.total_bytes,
             kv_cache_summary=kv_summary,
+            # Module 2 telemetry
+            telemetry_snapshot_count=(
+                len(telemetry_buffer) if telemetry_buffer is not None else 0
+            ),
+            telemetry_buffer=telemetry_buffer,
         )
