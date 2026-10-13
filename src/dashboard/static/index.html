@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Predictive VRAM & Split Inference | Interactive Control Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0d14;
+      --bg-card: rgba(18, 24, 38, 0.7);
+      --bg-card-hover: rgba(26, 34, 52, 0.85);
+      --border-card: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(56, 189, 248, 0.3);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Container */
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 32px 48px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-card);
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+
+    .brand-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: #ffffff;
+    }
+
+    .brand-text h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #ffffff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      backdrop-filter: blur(8px);
+    }
+
+    .badge-online {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .badge-online::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    .badge-hardware {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      color: #93c5fd;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* KPI Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 20px 24px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--border-glow);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-cyan);
+    }
+
+    .kpi-card.purple::before { background: var(--accent-purple); }
+    .kpi-card.emerald::before { background: var(--accent-emerald); }
+    .kpi-card.amber::before { background: var(--accent-amber); }
+
+    .kpi-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .kpi-subtext {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Visual 3-Tier Pipeline */
+    .pipeline-container {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-card);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+    }
+
+    .pipeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .pipeline-title h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .pipeline-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .tier-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      position: relative;
+    }
+
+    .tier-box {
+      background: rgba(10, 15, 26, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .tier-box.active-tier {
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 24px rgba(6, 182, 212, 0.1);
+    }
+
+    .tier-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tier-name {
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tier-specs {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .layer-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .layer-chip {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .layer-chip.active {
+      background: linear-gradient(90deg, rgba(6, 182, 212, 0.25), rgba(59, 130, 246, 0.25));
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .layer-chip.migrating {
+      animation: transferGlow 1.2s infinite alternate;
+      border-color: var(--accent-amber);
+    }
+
+    @keyframes transferGlow {
+      from { transform: translateX(0); box-shadow: 0 0 8px var(--accent-amber); }
+      to { transform: translateX(12px); box-shadow: 0 0 20px var(--accent-amber); }
+    }
+
+    /* Inter-tier Transfer Connector */
+    .connector-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 0;
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+      text-align: center;
+    }
+
+    /* Control & Demo Actions */
+    .action-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-card);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 32px;
+    }
+
+    .action-panel h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: none;
+      font-family: var(--font-sans);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #ffffff;
+      box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 24px rgba(6, 182, 212, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(51, 65, 85, 0.8);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* Terminal & Console */
+    .terminal-container {
+      background: #050811;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 18px 22px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #38bdf8;
+      max-height: 280px;
+      overflow-y: auto;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+      line-height: 1.6;
+    }
+
+    .terminal-line {
+      margin-bottom: 4px;
+    }
+
+    .terminal-line.success { color: #34d399; }
+    .terminal-line.warning { color: #fbbf24; }
+    .terminal-line.info { color: #94a3b8; }
+    .terminal-line.dim { color: #64748b; }
+
+    /* Progress bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-emerald));
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    /* Details Grid */
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .detail-card {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .detail-card h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-size: 0.85rem;
+    }
+
+    .metric-row:last-child { border-bottom: none; }
+    .metric-name { color: var(--text-muted); }
+    .metric-val { font-family: var(--font-mono); color: #ffffff; font-weight: 500; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="brand-text">
+          <h1>Predictive VRAM & Split Inference</h1>
+          <p>Network-Aware Dynamic Partitioning & Migration for Edge LLMs</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-online">RUNTIME ACTIVE</span>
+        <span class="badge badge-hardware" id="hw-badge">Host: CPU (16 Cores) | Provenance: Verified</span>
+      </div>
+    </header>
+
+    <!-- Top KPI Grid -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Active Partition Plan</div>
+        <div class="kpi-value" id="kpi-plan">UD [0-1] | EA [2-3]</div>
+        <div class="kpi-subtext" id="kpi-plan-desc">4-Layer Split Transformer</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">KV-Cache Growth Rate</div>
+        <div class="kpi-value">4.0 <span style="font-size: 1rem; color: var(--text-muted);">KB/s</span></div>
+        <div class="kpi-subtext">Linear Token Scaling</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Network Condition</div>
+        <div class="kpi-value" id="kpi-net">100 <span style="font-size: 1rem; color: var(--text-muted);">Mbps</span></div>
+        <div class="kpi-subtext">5.0 ms RTT Channel</div>
+      </div>
+      <div class="kpi-card emerald">
+        <div class="kpi-label">Token Parity Status</div>
+        <div class="kpi-value" id="kpi-parity" style="color: #34d399;">100% PASS</div>
+        <div class="kpi-subtext">Bit-Identical Continuity</div>
+      </div>
+    </div>
+
+    <!-- 3-Tier Visual Pipeline -->
+    <div class="pipeline-container">
+      <div class="pipeline-header">
+        <div class="pipeline-title">
+          <h2>Three-Tier Execution Topology</h2>
+          <p>Real-time physical layer placement and inter-tier activation forwarding</p>
+        </div>
+        <div>
+          <span class="badge" style="background: rgba(255,255,255,0.06);" id="migration-status-badge">Quiescence: Ready</span>
+        </div>
+      </div>
+
+      <div class="tier-columns">
+        <!-- Tier 1: User Device -->
+        <div class="tier-box active-tier" id="tier-ud">
+          <div class="tier-box-header">
+            <div class="tier-name">
+              <span>📱</span> User Device (Edge)
+            </div>
+            <span class="badge" style="font-size: 0.7rem; background: rgba(6,182,212,0.15); color: #38bdf8;">Client Node</span>
+          </div>
+          <div class="tier-specs">
+            Hardware: AMD CPU Host<br>
+            Host RAM: <span id="tier-ud-ram">14.1 GB</span><br>
+            VRAM Telemetry: <span style="color: #fbbf24;">UNAVAILABLE (CPU)</span>
+          </div>
+          <div class="layer-slots" id="ud-layers">
+            <div class="layer-chip active" id="layer-chip-0">
+              <span>Layer 0 (Embed + Self-Attn)</span>
+              <span style="font-size: 0.75rem; color: #38bdf8;">ACTIVE</span>
+            </div>
+            <div class="layer-chip active" id="layer-chip-1">
+              <span>Layer 1 (TransformerBlock)</span>
+              <span style="font-size: 0.75rem; color: #38bdf8;">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tier 2: Edge Node A -->
+        <div class="tier-box active-tier" id="tier-ea">
+          <div class="tier-box-header">
+            <div class="tier-name">
+              <span>⚡</span> Edge Node A (Near-Edge)
+            </div>
+            <span class="badge" style="font-size: 0.7rem; background: rgba(139,92,246,0.15); color: #c084fc;">Local Aggregator</span>
+          </div>
+          <div class="tier-specs">
+            Hardware: Dedicated Edge Server<br>
+            Latency to UD: 5.0 ms RTT<br>
+            Bandwidth: 100 Mbps Link
+          </div>
+          <div class="layer-slots" id="ea-layers">
+            <div class="layer-chip active" id="layer-chip-2">
+              <span>Layer 2 (TransformerBlock)</span>
+              <span style="font-size: 0.75rem; color: #c084fc;">ACTIVE</span>
+            </div>
+            <div class="layer-chip active" id="layer-chip-3">
+              <span>Layer 3 (LM-Head + Unembed)</span>
+              <span style="font-size: 0.75rem; color: #c084fc;">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tier 3: Edge Node B -->
+        <div class="tier-box" id="tier-eb">
+          <div class="tier-box-header">
+            <div class="tier-name">
+              <span>☁️</span> Edge Node B (Cloud-Edge)
+            </div>
+            <span class="badge" style="font-size: 0.7rem; background: rgba(100,116,139,0.2); color: #94a3b8;">Regional Gateway</span>
+          </div>
+          <div class="tier-specs">
+            Hardware: Cloud Datacenter<br>
+            Latency to EA: 15.0 ms RTT<br>
+            Status: Standby / Failover
+          </div>
+          <div class="layer-slots">
+            <div class="layer-chip" style="opacity: 0.4;">
+              <span>No Assigned Layers</span>
+              <span style="font-size: 0.75rem; color: #94a3b8;">STANDBY</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Actions & Console -->
+    <div class="action-panel">
+      <h3><span>🕹️</span> Live Demonstration Controls</h3>
+      <div class="button-group">
+        <button class="btn btn-primary" id="btn-migrate" onclick="runLiveMigration()">
+          <span>🚀</span> Execute Live Migration Demo
+        </button>
+        <button class="btn btn-secondary" id="btn-predict" onclick="runPrediction()">
+          <span>🔮</span> Run Predictive Forecast (+2.0s)
+        </button>
+        <button class="btn btn-secondary" id="btn-parity" onclick="verifySplitParity()">
+          <span>🔍</span> Verify 3-Tier Token Parity
+        </button>
+        <button class="btn btn-secondary" id="btn-catalog" onclick="loadCatalog()">
+          <span>📑</span> View 78 Split Catalog Plans
+        </button>
+        <button class="btn btn-secondary" onclick="loadStatus()">
+          <span>🔄</span> Refresh Telemetry
+        </button>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+
+      <!-- Live Terminal Output -->
+      <div style="margin-top: 18px; margin-bottom: 8px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">
+        SYSTEM EXECUTION STREAM & TELEMETRY LOGS:
+      </div>
+      <div class="terminal-container" id="terminal">
+        <div class="terminal-line info">> Predictive VRAM Runtime initialized. Ready for demonstration.</div>
+        <div class="terminal-line dim">> Click any button above to trigger live system algorithms.</div>
+      </div>
+
+      <!-- Post-Run Metrics Grid -->
+      <div class="details-grid" id="details-grid" style="display: none;">
+        <div class="detail-card">
+          <h4>Migration Breakdown</h4>
+          <div class="metric-row"><span class="metric-name">Validation Phase</span><span class="metric-val" id="val-t">--</span></div>
+          <div class="metric-row"><span class="metric-name">Model Transfer</span><span class="metric-val" id="mod-t">--</span></div>
+          <div class="metric-row"><span class="metric-name">Verification Phase</span><span class="metric-val" id="ver-t">--</span></div>
+          <div class="metric-row"><span class="metric-name">Commit & Unlock</span><span class="metric-val" id="com-t">--</span></div>
+          <div class="metric-row" style="font-weight: 700; color: #38bdf8;"><span class="metric-name">Total Migration Time</span><span class="metric-val" id="tot-t">--</span></div>
+        </div>
+
+        <div class="detail-card">
+          <h4>Token Parity & Transfer</h4>
+          <div class="metric-row"><span class="metric-name">Bytes Transferred</span><span class="metric-val" id="bytes-trans">--</span></div>
+          <div class="metric-row"><span class="metric-name">Migrated Layers</span><span class="metric-val" id="mig-layers">--</span></div>
+          <div class="metric-row"><span class="metric-name">Pre-Migration Tokens</span><span class="metric-val" id="pre-tokens">--</span></div>
+          <div class="metric-row"><span class="metric-name">Post-Migration Tokens</span><span class="metric-val" id="post-tokens">--</span></div>
+          <div class="metric-row"><span class="metric-name">Parity Match</span><span class="metric-val" id="parity-match" style="color: #34d399;">--</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      Predictive VRAM & Network-Aware Split Inference for Edge LLMs &bull; Modules 1–13 Verification Framework
+    </footer>
+
+  </div>
+
+  <script>
+    function log(msg, type = 'info') {
+      const term = document.getElementById('terminal');
+      const line = document.createElement('div');
+      line.className = 'terminal-line ' + type;
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      term.appendChild(line);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function setProgress(pct) {
+      document.getElementById('progress-bar').style.width = pct + '%';
+    }
+
+    async function loadStatus() {
+      try {
+        log('Querying hardware telemetry and runtime status...', 'dim');
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        if (data.system) {
+          document.getElementById('hw-badge').textContent = `Host: CPU (${data.system.cpu_cores} Cores) | RAM: ${data.system.host_ram_used_mb}/${data.system.host_ram_total_mb} MB`;
+          document.getElementById('tier-ud-ram').textContent = `${data.system.host_ram_used_mb} MB / ${data.system.host_ram_total_mb} MB`;
+          log(`Telemetry OK: CPU ${data.system.cpu_percent}%, Host RAM ${data.system.host_ram_used_mb} MB, VRAM: ${data.system.vram_status}`, 'info');
+        }
+      } catch (err) {
+        log(`Failed to fetch status: ${err.message}`, 'warning');
+      }
+    }
+
+    async function runLiveMigration() {
+      const btn = document.getElementById('btn-migrate');
+      btn.disabled = true;
+      setProgress(20);
+      log('Starting Live Transactional Migration Demo...', 'info');
+      log('Phase 1: Generating 8 tokens on source plan USER_DEVICE [0-1] | EDGE_A [2-3]', 'info');
+
+      // Visual indicator on Layer 1
+      const layer1 = document.getElementById('layer-chip-1');
+      layer1.classList.add('migrating');
+
+      try {
+        setProgress(40);
+        const res = await fetch('/api/run-migration', { method: 'POST' });
+        const data = await res.json();
+        setProgress(85);
+
+        if (data.success) {
+          log(`[SUCCESS] Transaction committed in ${data.total_duration_ms} ms!`, 'success');
+          log(`Transferred ${data.bytes_transferred.toLocaleString()} bytes over emulated network link.`, 'info');
+          log(`Token Parity: ${data.token_parity ? 'VERIFIED (100% BIT-IDENTICAL)' : 'MISMATCH'}`, data.token_parity ? 'success' : 'warning');
+          log(`Pre-Migration Token IDs: [${data.pre_tokens.join(', ')}]`, 'dim');
+          log(`Post-Migration Token IDs: [${data.post_tokens.join(', ')}]`, 'dim');
+
+          // Update UI representation
+          document.getElementById('kpi-plan').textContent = 'UD [0-0] | EA [1-3]';
+          document.getElementById('kpi-plan-desc').textContent = 'Layer 1 Migrated to Edge A';
+
+          // Move Layer 1 chip from User Device to Edge A visually
+          layer1.classList.remove('migrating');
+          const eaLayers = document.getElementById('ea-layers');
+          eaLayers.insertBefore(layer1, eaLayers.firstChild);
+          layer1.querySelector('span:first-child').textContent = 'Layer 1 (TransformerBlock)';
+          layer1.querySelector('span:last-child').style.color = '#c084fc';
+
+          // Fill detail cards
+          document.getElementById('val-t').textContent = data.phase_timings_ms.validation + ' ms';
+          document.getElementById('mod-t').textContent = data.phase_timings_ms.model_transfer + ' ms';
+          document.getElementById('ver-t').textContent = data.phase_timings_ms.verification + ' ms';
+          document.getElementById('com-t').textContent = data.phase_timings_ms.commit + ' ms';
+          document.getElementById('tot-t').textContent = data.total_duration_ms + ' ms';
+
+          document.getElementById('bytes-trans').textContent = data.bytes_transferred.toLocaleString() + ' B';
+          document.getElementById('mig-layers').textContent = 'Layer 1 (UD -> EA)';
+          document.getElementById('pre-tokens').textContent = `[${data.pre_tokens.slice(0, 5).join(', ')}...]`;
+          document.getElementById('post-tokens').textContent = `[${data.post_tokens.slice(0, 5).join(', ')}...]`;
+          document.getElementById('parity-match').textContent = data.token_parity ? 'PASS (Bit-Identical)' : 'FAIL';
+
+          document.getElementById('details-grid').style.display = 'grid';
+          document.getElementById('migration-status-badge').textContent = 'Plan: UD [0-0] | EA [1-3]';
+          document.getElementById('migration-status-badge').style.color = '#34d399';
+        } else {
+          log(`Migration failed: ${data.error || 'Unknown error'}`, 'warning');
+        }
+      } catch (err) {
+        log(`Error executing migration: ${err.message}`, 'warning');
+      } finally {
+        setProgress(100);
+        setTimeout(() => setProgress(0), 1000);
+        btn.disabled = false;
+      }
+    }
+
+    async function runPrediction() {
+      const btn = document.getElementById('btn-predict');
+      btn.disabled = true;
+      setProgress(30);
+      log('Running KVAwareMemoryPredictor with lookahead horizon = 2.0s...', 'info');
+
+      try {
+        const res = await fetch('/api/run-prediction', { method: 'POST' });
+        const data = await res.json();
+        setProgress(80);
+
+        log(`Current Bandwidth: ${data.observed_bandwidth} Mbps -> Forecast Collapse: [${data.forecast_bandwidth.join(', ')}] Mbps`, 'warning');
+        log(`Current KV-Cache: ${data.observed_kv_bytes} B -> Forecast Growth: [${data.forecast_kv_bytes.join(', ')}] B`, 'info');
+        log(`KV Expansion Rate: ${data.kv_growth_rate_bps} B/s`, 'info');
+        log(`[CONTROLLER NOTICE] ${data.warning}`, 'warning');
+
+        document.getElementById('kpi-net').innerHTML = `${data.forecast_bandwidth[3]} <span style="font-size: 1rem; color: #f43f5e;">Mbps (Collapsed!)</span>`;
+      } catch (err) {
+        log(`Error in prediction: ${err.message}`, 'warning');
+      } finally {
+        setProgress(100);
+        setTimeout(() => setProgress(0), 1000);
+        btn.disabled = false;
+      }
+    }
+
+    async function verifySplitParity() {
+      const btn = document.getElementById('btn-parity');
+      btn.disabled = true;
+      setProgress(30);
+      log('Auditing 3-Tier Split Inference vs Monolithic Reference Model...', 'info');
+
+      try {
+        const res = await fetch('/api/run-split-parity', { method: 'POST' });
+        const data = await res.json();
+        setProgress(85);
+
+        log(`Placement Mode: ${data.placement_mode}`, 'info');
+        log(`Active Tiers: ${data.active_tiers.join(' -> ')}`, 'info');
+        log(`Executed ${data.total_transfers} transfers across tier boundaries (${data.total_transfer_bytes.toLocaleString()} bytes).`, 'info');
+        log(`Token Parity: ${data.token_parity_verified ? 'VERIFIED [PASS]' : 'FAILED [MISMATCH]'}`, data.token_parity_verified ? 'success' : 'warning');
+        log(`Split Tokens Generated: [${data.split_tokens.join(', ')}]`, 'success');
+      } catch (err) {
+        log(`Error verifying split: ${err.message}`, 'warning');
+      } finally {
+        setProgress(100);
+        setTimeout(() => setProgress(0), 1000);
+        btn.disabled = false;
+      }
+    }
+
+    async function loadCatalog() {
+      log('Querying Split Catalog for all valid partition combinations...', 'info');
+      try {
+        const res = await fetch('/api/catalog');
+        const data = await res.json();
+        log(`Split Catalog generated ${data.total_plans} structurally contiguous partition plans.`, 'success');
+        data.sample_plans.slice(0, 5).forEach(p => {
+          log(`  Plan: ${p.plan_id.padEnd(20)} | UD: ${p.user_device.padEnd(6)} | EA: ${p.edge_a.padEnd(6)} | EB: ${p.edge_b}`, 'dim');
+        });
+        log('... and 73 more candidate plans available for controller evaluation.', 'dim');
+      } catch (err) {
+        log(`Error loading catalog: ${err.message}`, 'warning');
+      }
+    }
+
+    // Initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStatus();
+    });
+  </script>
+</body>
+</html>

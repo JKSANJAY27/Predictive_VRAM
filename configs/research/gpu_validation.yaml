@@ -1,0 +1,39 @@
+# ==============================================================================
+# Real-GPU Validation & Empirical Benchmarking Configuration (Module 13)
+# ==============================================================================
+
+experiment_id: "empirical_gpu_validation"
+title: "Real-GPU Memory Profiling & Feasibility Safety Verification"
+target_device: "auto"  # "auto" | "cuda" | "cpu"
+precision: "float32"
+
+# Workload & Matrix Settings
+model_name: "gpt2"
+prompt_lengths:
+  - 8
+  - 32
+generation_lengths:
+  - 4
+  - 16
+precisions:
+  - "float32"
+
+# Memory Safety Evaluation Thresholds
+safety_threshold_ratio: 0.85
+safety_budget_mb: null  # null = auto-calculate based on total detected memory
+
+# Scenarios to Profile
+scenarios:
+  - "stable"
+  - "kv_cache_driven_memory_growth"
+  - "bandwidth_drop_step"
+
+# Baseline Policies to Evaluate
+policies:
+  - "static"
+  - "predictive"
+  - "joint_reactive"
+
+# Empirical Evidence Classification
+experiment_class: "CLASS_5_MIXED"
+output_dir: "results/research/gpu_validation"

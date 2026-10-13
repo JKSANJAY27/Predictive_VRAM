@@ -453,6 +453,7 @@ class ClosedLoopRuntime:
         )
 
         self.scheduler.reset()
+        self.state_buffer.clear()
         sim_itls: List[float] = []
         ttft = 15.0
 
@@ -510,6 +511,7 @@ class ClosedLoopRuntime:
         )
 
         self.scheduler.reset()
+        self.state_buffer.clear()
         sim_itls: List[float] = []
         ttft = 15.0
 

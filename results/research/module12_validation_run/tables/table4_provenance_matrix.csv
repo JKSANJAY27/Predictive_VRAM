@@ -1,0 +1,7 @@
+Observation Category,Platform Classification,Method
+"Inference Latency (ITL, TTFT)",MEASURED,Local high-resolution monotonic timer on executor runtime.
+Host RAM Utilization,MEASURED,Host OS memory query via psutil.virtual_memory().
+Physical GPU VRAM,UNAVAILABLE,PyTorch CUDA mem_get_info() where GPU exists; None on CPU.
+6G Sub-THz / High Mobility Profiles,EMULATED,Discrete profile parameter replay with deterministic synthetic link dynamics.
+Loopback TCP Socket Transfer,MEASURED (Loopback),Physical OS socket transfer on 127.0.0.1; does not reflect cellular WAN.
+Modeled Energy Consumption,ESTIMATED,Proxy power coefficients per tier multiplied by execution duration.

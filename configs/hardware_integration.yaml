@@ -1,0 +1,57 @@
+# ==============================================================================
+# Module 11: Real-Hardware Integration & 6G-Oriented Validation Configuration
+# ==============================================================================
+
+hardware:
+  provider_type: "auto"          # 'auto', 'cpu', 'cuda', or 'mock'
+  fallback_to_cpu: true          # Gracefully degrade to CPU if CUDA unavailable
+  device_id: 0                   # Target GPU/device index
+  allow_nvml: true               # Enable NVML queries if installed
+
+telemetry:
+  sampling_interval_seconds: 0.25 # Telemetry collection rate
+  include_host_ram: true
+  include_cpu_utilization: true
+  non_blocking_gpu_sampling: true # Never call torch.cuda.synchronize() in hot path
+
+network_measurement:
+  enabled: true
+  target_host: "127.0.0.1"       # Default probe target (loopback safe)
+  target_port: 8080
+  probe_timeout_seconds: 1.5
+  sample_count: 5                # Samples per RTT / jitter estimation
+  payload_probe_bytes: 65536     # 64 KB for throughput testing
+  allow_hot_path_probing: false  # Never run blocking network probes in token loop
+
+transport:
+  backend: "tcp"                 # 'local', 'emulated', or 'tcp'
+  bind_host: "127.0.0.1"         # Loopback binding by default for security
+  bind_port: 0                   # 0 = ephemeral free port assignment
+  connect_timeout_seconds: 5.0
+  transfer_timeout_seconds: 30.0
+  max_payload_bytes: 536870912   # 512 MB max single payload limit
+  require_hmac_auth: true
+  auth_token_env_var: "PVTM_AUTH_SECRET"  # Never store raw secret credentials in config
+
+network_profile:
+  default_profile: "stable_wifi" # Selected baseline profile from catalog
+  active_profile: "six_g_sub_thz_extreme_bandwidth"
+  custom_profile_path: null      # Optional path to empirical trace file
+
+linux_netem:
+  enabled: false                 # Disabled by default; requires explicit opt-in
+  interface: "lo"                # Traffic control target interface
+  allow_primary_interface: false # Protect user's primary connection
+  dry_run: true                  # Default to dry-run inspection
+
+evaluation:
+  output_dir: "results/hardware_integration"
+  trials_per_scenario: 3
+  seed: 42
+  export_formats:
+    - "json"
+    - "csv"
+
+integration_tests:
+  opt_in_real_hardware: false    # Only enable when executed on verified CUDA/multi-host testbeds
+  opt_in_real_network: false     # Requires listening endpoint

@@ -1,0 +1,28 @@
+# ==============================================================================
+# Predictive VRAM & Network-Aware Dynamic Split Inference for Edge LLMs
+# Dependencies & Requirements Specification
+# ==============================================================================
+
+# Core Deep Learning & Distributed LLM Runtime (Modules 1, 8, 9)
+torch>=2.2.0
+transformers>=4.36.0
+accelerate>=0.26.0
+
+# Runtime Telemetry & Resource Monitoring (Module 2)
+psutil>=5.9.0
+
+# State Management, Features & Numerical Processing (Modules 3, 4, 10)
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# Configuration Management & Schema Validation
+PyYAML>=6.0.0
+pydantic>=2.0.0
+
+# Evaluation Visualizations & Plot Generation (Module 10)
+matplotlib>=3.7.0
+
+# Testing & Continuous Integration Suite
+pytest>=7.0.0

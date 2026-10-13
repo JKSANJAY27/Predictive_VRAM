@@ -1,0 +1,23 @@
+[project]
+name = "predictive-vram"
+version = "0.1.0"
+description = "Predictive VRAM & Network-Aware Dynamic Split Inference for Edge LLMs"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.2.0",
+    "transformers>=4.36.0",
+    "accelerate>=0.26.0",
+    "psutil>=5.9.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.3.0",
+    "PyYAML>=6.0.0",
+    "pydantic>=2.0.0",
+    "matplotlib>=3.7.0",
+    "pytest>=7.0.0",
+]
+
+[tool.uv]
+package = false

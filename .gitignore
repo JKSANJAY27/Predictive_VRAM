@@ -35,3 +35,6 @@ htmlcov/
 .vscode/
 .idea/
 *.swp
+
+# Runtime PID
+.dashboard.pid

@@ -1,0 +1,85 @@
+{
+  "hardware_status": "CPU_ONLY_NOT_PERFORMED",
+  "device_name": "CPU Host",
+  "device_index": null,
+  "compute_capability": null,
+  "cuda_driver_version": null,
+  "pytorch_version": "2.14.1+cpu",
+  "total_device_memory_mb": null,
+  "phased_records": [
+    {
+      "phase_name": "idle_baseline",
+      "timestamp_utc": 1791823844.5086238,
+      "duration_ms": 0.4097999772056937,
+      "allocated_mb": null,
+      "reserved_mb": null,
+      "device_free_mb": null,
+      "device_total_mb": null,
+      "host_ram_used_mb": 11307.8046875,
+      "kv_cache_bytes": 0,
+      "data_source": "unavailable"
+    },
+    {
+      "phase_name": "model_placed",
+      "timestamp_utc": 1791823844.510623,
+      "duration_ms": 2.049200003966689,
+      "allocated_mb": null,
+      "reserved_mb": null,
+      "device_free_mb": null,
+      "device_total_mb": null,
+      "host_ram_used_mb": 11307.77734375,
+      "kv_cache_bytes": 0,
+      "data_source": "unavailable"
+    },
+    {
+      "phase_name": "warmup_completed",
+      "timestamp_utc": 1791823844.545201,
+      "duration_ms": 34.348799963481724,
+      "allocated_mb": null,
+      "reserved_mb": null,
+      "device_free_mb": null,
+      "device_total_mb": null,
+      "host_ram_used_mb": 11312.25,
+      "kv_cache_bytes": 0,
+      "data_source": "unavailable"
+    },
+    {
+      "phase_name": "generation_completed",
+      "timestamp_utc": 1791823844.6717582,
+      "duration_ms": 126.79120001848787,
+      "allocated_mb": null,
+      "reserved_mb": null,
+      "device_free_mb": null,
+      "device_total_mb": null,
+      "host_ram_used_mb": 11316.1328125,
+      "kv_cache_bytes": 0,
+      "data_source": "unavailable"
+    }
+  ],
+  "peak_allocated_mb": null,
+  "peak_reserved_mb": null,
+  "prefill_memory_growth_mb": null,
+  "mean_kv_growth_per_token_bytes": 0.0,
+  "prediction_mae_mb": 0.0,
+  "prediction_rmse_mb": 0.0,
+  "feasibility_safety": {
+    "safety_threshold_mb": 512.0,
+    "total_evaluations": 8,
+    "true_safe_count": 8,
+    "true_unsafe_count": 0,
+    "false_safe_count": 0,
+    "false_unsafe_count": 0,
+    "false_safe_rate": 0.0,
+    "false_unsafe_rate": 0.0,
+    "accuracy": 1.0
+  },
+  "invariants_verified": {
+    "vram_not_substituted_with_host_ram": true,
+    "missing_vram_is_none": true,
+    "provenance_correctly_tagged": true,
+    "zero_false_safe_critical_safety": true
+  },
+  "limitations": [
+    "CUDA unavailable: GPU VRAM metrics are UNAVAILABLE. Physical GPU validation was NOT PERFORMED."
+  ]
+}

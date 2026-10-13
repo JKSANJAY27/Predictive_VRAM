@@ -1,0 +1,5 @@
+prompt_length,max_new_tokens,precision,peak_vram_mb,host_ram_mb,execution_time_sec,mean_kv_growth_bytes,prediction_mae_mb,false_safe_count
+8,4,float32,,11317.74,0.0978,0.0,0.0,0
+8,8,float32,,11317.88,0.1421,0.0,0.0,0
+32,4,float32,,11314.79,0.0877,0.0,0.0,0
+32,8,float32,,11315.41,0.1355,0.0,0.0,0

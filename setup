@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+echo "======================================================================"
+echo " [SETUP] Initializing Predictive VRAM Environment...                 "
+echo "======================================================================"
+
+if command -v uv &> /dev/null; then
+    echo "[INFO] Fast package manager 'uv' detected. Synchronizing environment..."
+    uv sync
+else
+    echo "[INFO] Setting up standard virtual environment (.venv)..."
+    if [ ! -d ".venv" ]; then
+        python3 -m venv .venv || python -m venv .venv
+    fi
+    source .venv/bin/activate 2>/dev/null || source .venv/Scripts/activate 2>/dev/null
+    pip install --upgrade pip
+    pip install -r requirements.txt
+fi
+
+python3 -c "import torch, transformers, psutil, numpy, scipy, sklearn, yaml, pydantic; print('All core libraries verified successfully!')" 2>/dev/null || \
+python -c "import torch, transformers, psutil, numpy, scipy, sklearn, yaml, pydantic; print('All core libraries verified successfully!')"
+
+echo "======================================================================"
+echo " [SUCCESS] Setup complete! Ready to run.                             "
+echo " To start:  ./start (or ./start.ps1)                                 "
+echo " To stop:   ./end   (or ./end.ps1)                                   "
+echo "======================================================================"

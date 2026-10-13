@@ -1,0 +1,20 @@
+alpha_significance: 0.05
+base_output_dir: results/research
+confidence_level: 0.95
+control_interval_tokens: 2
+execution_mode: simulation
+experiment_id: module12_validation_run
+is_cpu_only: true
+max_new_tokens: 16
+multiple_testing_correction: holm
+policies:
+- static
+- predictive
+- joint_reactive
+record_vram_telemetry: false
+repetitions: 2
+scenarios:
+- stable
+- kv_cache_driven_memory_growth
+seed: 42
+title: Empirical Evaluation of Predictive VRAM & Network-Aware Split Inference

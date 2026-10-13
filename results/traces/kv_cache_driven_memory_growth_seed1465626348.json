@@ -1,0 +1,1440 @@
+{
+  "scenario_id": "kv_cache_driven_memory_growth",
+  "seed": 1465626348,
+  "sampling_interval_s": 0.25,
+  "n_steps": 64,
+  "provenance": "synthetic",
+  "network": {
+    "steps": [
+      {
+        "timestamp": 0.0,
+        "bandwidth_mbps": 99.99197888871487,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 0.25,
+        "bandwidth_mbps": 100.00499964303188,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 0.5,
+        "bandwidth_mbps": 99.99122296367355,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 0.75,
+        "bandwidth_mbps": 100.00594698575652,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 1.0,
+        "bandwidth_mbps": 99.99393375197592,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 1.25,
+        "bandwidth_mbps": 100.00865518756294,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 1.5,
+        "bandwidth_mbps": 99.99909034100517,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 1.75,
+        "bandwidth_mbps": 99.99114794674006,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 2.0,
+        "bandwidth_mbps": 100.00550510875496,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 2.25,
+        "bandwidth_mbps": 100.00649983367407,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 2.5,
+        "bandwidth_mbps": 99.9901128336474,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 2.75,
+        "bandwidth_mbps": 100.00273855740522,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 3.0,
+        "bandwidth_mbps": 99.99779235603145,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 3.25,
+        "bandwidth_mbps": 99.99925814793585,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 3.5,
+        "bandwidth_mbps": 99.99445118276307,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 3.75,
+        "bandwidth_mbps": 99.99241783793855,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 4.0,
+        "bandwidth_mbps": 99.99097387610938,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 4.25,
+        "bandwidth_mbps": 99.99435462023277,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 4.5,
+        "bandwidth_mbps": 99.9976343567873,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 4.75,
+        "bandwidth_mbps": 100.0020615558888,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 5.0,
+        "bandwidth_mbps": 99.99239288996858,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 5.25,
+        "bandwidth_mbps": 100.00089664537879,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 5.5,
+        "bandwidth_mbps": 100.0020955528919,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 5.75,
+        "bandwidth_mbps": 100.00627522801167,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 6.0,
+        "bandwidth_mbps": 99.99707073743691,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 6.25,
+        "bandwidth_mbps": 99.99501191268487,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 6.5,
+        "bandwidth_mbps": 99.9907621413265,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 6.75,
+        "bandwidth_mbps": 100.00151789472524,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 7.0,
+        "bandwidth_mbps": 99.99377349090304,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 7.25,
+        "bandwidth_mbps": 99.99232547797342,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 7.5,
+        "bandwidth_mbps": 100.00261920415801,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 7.75,
+        "bandwidth_mbps": 100.00607125675289,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 8.0,
+        "bandwidth_mbps": 100.00150941435608,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 8.25,
+        "bandwidth_mbps": 100.0005444964163,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 8.5,
+        "bandwidth_mbps": 100.00212420899211,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 8.75,
+        "bandwidth_mbps": 99.9971280928548,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 9.0,
+        "bandwidth_mbps": 100.0099197396324,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 9.25,
+        "bandwidth_mbps": 99.99813745644057,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 9.5,
+        "bandwidth_mbps": 100.00766223915254,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 9.75,
+        "bandwidth_mbps": 99.99681985113627,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 10.0,
+        "bandwidth_mbps": 100.00962261355828,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 10.25,
+        "bandwidth_mbps": 100.00661735978915,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 10.5,
+        "bandwidth_mbps": 100.00268653843571,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 10.75,
+        "bandwidth_mbps": 99.99608428704063,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 11.0,
+        "bandwidth_mbps": 99.99171415192636,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 11.25,
+        "bandwidth_mbps": 99.99323977789348,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 11.5,
+        "bandwidth_mbps": 100.00313966232757,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 11.75,
+        "bandwidth_mbps": 99.99838909045181,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 12.0,
+        "bandwidth_mbps": 99.9915303349274,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 12.25,
+        "bandwidth_mbps": 99.99823929387232,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 12.5,
+        "bandwidth_mbps": 100.00034737623378,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 12.75,
+        "bandwidth_mbps": 100.00564424801516,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 13.0,
+        "bandwidth_mbps": 99.99899255225164,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 13.25,
+        "bandwidth_mbps": 99.99855124043327,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 13.5,
+        "bandwidth_mbps": 99.99564383533624,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 13.75,
+        "bandwidth_mbps": 99.99560214075399,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 14.0,
+        "bandwidth_mbps": 100.00309616048709,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 14.25,
+        "bandwidth_mbps": 100.00638702323133,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 14.5,
+        "bandwidth_mbps": 99.99446652471833,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 14.75,
+        "bandwidth_mbps": 99.99503086933923,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 15.0,
+        "bandwidth_mbps": 99.99024517832842,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 15.25,
+        "bandwidth_mbps": 100.00590709082196,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 15.5,
+        "bandwidth_mbps": 99.992096808669,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      },
+      {
+        "timestamp": 15.75,
+        "bandwidth_mbps": 99.994236278319,
+        "rtt_ms": 5.0,
+        "packet_loss": 0.0,
+        "jitter_ms": 0.5,
+        "notes": "stable"
+      }
+    ]
+  },
+  "memory": {
+    "steps": [
+      {
+        "timestamp": 0.0,
+        "used_mb": 2048.0,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 0,
+        "provenance": "emulated",
+        "notes": "step_0"
+      },
+      {
+        "timestamp": 0.25,
+        "used_mb": 2049.02,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 512,
+        "provenance": "emulated",
+        "notes": "step_1"
+      },
+      {
+        "timestamp": 0.5,
+        "used_mb": 2050.1,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 1024,
+        "provenance": "emulated",
+        "notes": "step_2"
+      },
+      {
+        "timestamp": 0.75,
+        "used_mb": 2051.21,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 1536,
+        "provenance": "emulated",
+        "notes": "step_3"
+      },
+      {
+        "timestamp": 1.0,
+        "used_mb": 2052.38,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 2048,
+        "provenance": "emulated",
+        "notes": "step_4"
+      },
+      {
+        "timestamp": 1.25,
+        "used_mb": 2053.6,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 2560,
+        "provenance": "emulated",
+        "notes": "step_5"
+      },
+      {
+        "timestamp": 1.5,
+        "used_mb": 2054.86,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 3072,
+        "provenance": "emulated",
+        "notes": "step_6"
+      },
+      {
+        "timestamp": 1.75,
+        "used_mb": 2056.17,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 3584,
+        "provenance": "emulated",
+        "notes": "step_7"
+      },
+      {
+        "timestamp": 2.0,
+        "used_mb": 2057.52,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 4096,
+        "provenance": "emulated",
+        "notes": "step_8"
+      },
+      {
+        "timestamp": 2.25,
+        "used_mb": 2058.93,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 4608,
+        "provenance": "emulated",
+        "notes": "step_9"
+      },
+      {
+        "timestamp": 2.5,
+        "used_mb": 2060.38,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 5120,
+        "provenance": "emulated",
+        "notes": "step_10"
+      },
+      {
+        "timestamp": 2.75,
+        "used_mb": 2061.88,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 5632,
+        "provenance": "emulated",
+        "notes": "step_11"
+      },
+      {
+        "timestamp": 3.0,
+        "used_mb": 2063.43,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 6144,
+        "provenance": "emulated",
+        "notes": "step_12"
+      },
+      {
+        "timestamp": 3.25,
+        "used_mb": 2065.02,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 6656,
+        "provenance": "emulated",
+        "notes": "step_13"
+      },
+      {
+        "timestamp": 3.5,
+        "used_mb": 2066.67,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 7168,
+        "provenance": "emulated",
+        "notes": "step_14"
+      },
+      {
+        "timestamp": 3.75,
+        "used_mb": 2068.36,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 7680,
+        "provenance": "emulated",
+        "notes": "step_15"
+      },
+      {
+        "timestamp": 4.0,
+        "used_mb": 2070.1,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 8192,
+        "provenance": "emulated",
+        "notes": "step_16"
+      },
+      {
+        "timestamp": 4.25,
+        "used_mb": 2071.88,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 8704,
+        "provenance": "emulated",
+        "notes": "step_17"
+      },
+      {
+        "timestamp": 4.5,
+        "used_mb": 2073.71,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 9216,
+        "provenance": "emulated",
+        "notes": "step_18"
+      },
+      {
+        "timestamp": 4.75,
+        "used_mb": 2075.6,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 9728,
+        "provenance": "emulated",
+        "notes": "step_19"
+      },
+      {
+        "timestamp": 5.0,
+        "used_mb": 2077.52,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 10240,
+        "provenance": "emulated",
+        "notes": "step_20"
+      },
+      {
+        "timestamp": 5.25,
+        "used_mb": 2079.5,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 10752,
+        "provenance": "emulated",
+        "notes": "step_21"
+      },
+      {
+        "timestamp": 5.5,
+        "used_mb": 2081.52,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 11264,
+        "provenance": "emulated",
+        "notes": "step_22"
+      },
+      {
+        "timestamp": 5.75,
+        "used_mb": 2083.6,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 11776,
+        "provenance": "emulated",
+        "notes": "step_23"
+      },
+      {
+        "timestamp": 6.0,
+        "used_mb": 2085.71,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 12288,
+        "provenance": "emulated",
+        "notes": "step_24"
+      },
+      {
+        "timestamp": 6.25,
+        "used_mb": 2087.88,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 12800,
+        "provenance": "emulated",
+        "notes": "step_25"
+      },
+      {
+        "timestamp": 6.5,
+        "used_mb": 2090.1,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 13312,
+        "provenance": "emulated",
+        "notes": "step_26"
+      },
+      {
+        "timestamp": 6.75,
+        "used_mb": 2092.36,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 13824,
+        "provenance": "emulated",
+        "notes": "step_27"
+      },
+      {
+        "timestamp": 7.0,
+        "used_mb": 2094.67,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 14336,
+        "provenance": "emulated",
+        "notes": "step_28"
+      },
+      {
+        "timestamp": 7.25,
+        "used_mb": 2097.02,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 14848,
+        "provenance": "emulated",
+        "notes": "step_29"
+      },
+      {
+        "timestamp": 7.5,
+        "used_mb": 2099.43,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 15360,
+        "provenance": "emulated",
+        "notes": "step_30"
+      },
+      {
+        "timestamp": 7.75,
+        "used_mb": 2101.88,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 15872,
+        "provenance": "emulated",
+        "notes": "step_31"
+      },
+      {
+        "timestamp": 8.0,
+        "used_mb": 2104.38,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 16384,
+        "provenance": "emulated",
+        "notes": "step_32"
+      },
+      {
+        "timestamp": 8.25,
+        "used_mb": 2106.93,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 16896,
+        "provenance": "emulated",
+        "notes": "step_33"
+      },
+      {
+        "timestamp": 8.5,
+        "used_mb": 2109.52,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 17408,
+        "provenance": "emulated",
+        "notes": "step_34"
+      },
+      {
+        "timestamp": 8.75,
+        "used_mb": 2112.17,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 17920,
+        "provenance": "emulated",
+        "notes": "step_35"
+      },
+      {
+        "timestamp": 9.0,
+        "used_mb": 2114.86,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 18432,
+        "provenance": "emulated",
+        "notes": "step_36"
+      },
+      {
+        "timestamp": 9.25,
+        "used_mb": 2117.6,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 18944,
+        "provenance": "emulated",
+        "notes": "step_37"
+      },
+      {
+        "timestamp": 9.5,
+        "used_mb": 2120.38,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 19456,
+        "provenance": "emulated",
+        "notes": "step_38"
+      },
+      {
+        "timestamp": 9.75,
+        "used_mb": 2123.21,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 19968,
+        "provenance": "emulated",
+        "notes": "step_39"
+      },
+      {
+        "timestamp": 10.0,
+        "used_mb": 2126.1,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 20480,
+        "provenance": "emulated",
+        "notes": "step_40"
+      },
+      {
+        "timestamp": 10.25,
+        "used_mb": 2129.02,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 20992,
+        "provenance": "emulated",
+        "notes": "step_41"
+      },
+      {
+        "timestamp": 10.5,
+        "used_mb": 2132.0,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 21504,
+        "provenance": "emulated",
+        "notes": "step_42"
+      },
+      {
+        "timestamp": 10.75,
+        "used_mb": 2135.02,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 22016,
+        "provenance": "emulated",
+        "notes": "step_43"
+      },
+      {
+        "timestamp": 11.0,
+        "used_mb": 2138.1,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 22528,
+        "provenance": "emulated",
+        "notes": "step_44"
+      },
+      {
+        "timestamp": 11.25,
+        "used_mb": 2141.21,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 23040,
+        "provenance": "emulated",
+        "notes": "step_45"
+      },
+      {
+        "timestamp": 11.5,
+        "used_mb": 2144.38,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 23552,
+        "provenance": "emulated",
+        "notes": "step_46"
+      },
+      {
+        "timestamp": 11.75,
+        "used_mb": 2147.6,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 24064,
+        "provenance": "emulated",
+        "notes": "step_47"
+      },
+      {
+        "timestamp": 12.0,
+        "used_mb": 2150.86,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 24576,
+        "provenance": "emulated",
+        "notes": "step_48"
+      },
+      {
+        "timestamp": 12.25,
+        "used_mb": 2154.17,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 25088,
+        "provenance": "emulated",
+        "notes": "step_49"
+      },
+      {
+        "timestamp": 12.5,
+        "used_mb": 2157.52,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 25600,
+        "provenance": "emulated",
+        "notes": "step_50"
+      },
+      {
+        "timestamp": 12.75,
+        "used_mb": 2160.93,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 26112,
+        "provenance": "emulated",
+        "notes": "step_51"
+      },
+      {
+        "timestamp": 13.0,
+        "used_mb": 2164.38,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 26624,
+        "provenance": "emulated",
+        "notes": "step_52"
+      },
+      {
+        "timestamp": 13.25,
+        "used_mb": 2167.88,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 27136,
+        "provenance": "emulated",
+        "notes": "step_53"
+      },
+      {
+        "timestamp": 13.5,
+        "used_mb": 2171.43,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 27648,
+        "provenance": "emulated",
+        "notes": "step_54"
+      },
+      {
+        "timestamp": 13.75,
+        "used_mb": 2175.02,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 28160,
+        "provenance": "emulated",
+        "notes": "step_55"
+      },
+      {
+        "timestamp": 14.0,
+        "used_mb": 2178.67,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 28672,
+        "provenance": "emulated",
+        "notes": "step_56"
+      },
+      {
+        "timestamp": 14.25,
+        "used_mb": 2182.36,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 29184,
+        "provenance": "emulated",
+        "notes": "step_57"
+      },
+      {
+        "timestamp": 14.5,
+        "used_mb": 2186.1,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 29696,
+        "provenance": "emulated",
+        "notes": "step_58"
+      },
+      {
+        "timestamp": 14.75,
+        "used_mb": 2189.88,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 30208,
+        "provenance": "emulated",
+        "notes": "step_59"
+      },
+      {
+        "timestamp": 15.0,
+        "used_mb": 2193.71,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 30720,
+        "provenance": "emulated",
+        "notes": "step_60"
+      },
+      {
+        "timestamp": 15.25,
+        "used_mb": 2197.6,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 31232,
+        "provenance": "emulated",
+        "notes": "step_61"
+      },
+      {
+        "timestamp": 15.5,
+        "used_mb": 2201.52,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 31744,
+        "provenance": "emulated",
+        "notes": "step_62"
+      },
+      {
+        "timestamp": 15.75,
+        "used_mb": 2205.5,
+        "capacity_mb": 4096.0,
+        "kv_cache_bytes": 32256,
+        "provenance": "emulated",
+        "notes": "step_63"
+      }
+    ]
+  },
+  "compute": {
+    "steps": [
+      {
+        "timestamp": 0.0,
+        "cpu_fraction": 0.242,
+        "edge_load_fraction": 0.2,
+        "notes": "step_0"
+      },
+      {
+        "timestamp": 0.25,
+        "cpu_fraction": 0.282,
+        "edge_load_fraction": 0.2,
+        "notes": "step_1"
+      },
+      {
+        "timestamp": 0.5,
+        "cpu_fraction": 0.286,
+        "edge_load_fraction": 0.2,
+        "notes": "step_2"
+      },
+      {
+        "timestamp": 0.75,
+        "cpu_fraction": 0.269,
+        "edge_load_fraction": 0.2,
+        "notes": "step_3"
+      },
+      {
+        "timestamp": 1.0,
+        "cpu_fraction": 0.279,
+        "edge_load_fraction": 0.2,
+        "notes": "step_4"
+      },
+      {
+        "timestamp": 1.25,
+        "cpu_fraction": 0.229,
+        "edge_load_fraction": 0.2,
+        "notes": "step_5"
+      },
+      {
+        "timestamp": 1.5,
+        "cpu_fraction": 0.252,
+        "edge_load_fraction": 0.2,
+        "notes": "step_6"
+      },
+      {
+        "timestamp": 1.75,
+        "cpu_fraction": 0.298,
+        "edge_load_fraction": 0.2,
+        "notes": "step_7"
+      },
+      {
+        "timestamp": 2.0,
+        "cpu_fraction": 0.228,
+        "edge_load_fraction": 0.2,
+        "notes": "step_8"
+      },
+      {
+        "timestamp": 2.25,
+        "cpu_fraction": 0.277,
+        "edge_load_fraction": 0.2,
+        "notes": "step_9"
+      },
+      {
+        "timestamp": 2.5,
+        "cpu_fraction": 0.236,
+        "edge_load_fraction": 0.2,
+        "notes": "step_10"
+      },
+      {
+        "timestamp": 2.75,
+        "cpu_fraction": 0.288,
+        "edge_load_fraction": 0.2,
+        "notes": "step_11"
+      },
+      {
+        "timestamp": 3.0,
+        "cpu_fraction": 0.298,
+        "edge_load_fraction": 0.2,
+        "notes": "step_12"
+      },
+      {
+        "timestamp": 3.25,
+        "cpu_fraction": 0.227,
+        "edge_load_fraction": 0.2,
+        "notes": "step_13"
+      },
+      {
+        "timestamp": 3.5,
+        "cpu_fraction": 0.225,
+        "edge_load_fraction": 0.2,
+        "notes": "step_14"
+      },
+      {
+        "timestamp": 3.75,
+        "cpu_fraction": 0.266,
+        "edge_load_fraction": 0.2,
+        "notes": "step_15"
+      },
+      {
+        "timestamp": 4.0,
+        "cpu_fraction": 0.202,
+        "edge_load_fraction": 0.2,
+        "notes": "step_16"
+      },
+      {
+        "timestamp": 4.25,
+        "cpu_fraction": 0.247,
+        "edge_load_fraction": 0.2,
+        "notes": "step_17"
+      },
+      {
+        "timestamp": 4.5,
+        "cpu_fraction": 0.278,
+        "edge_load_fraction": 0.2,
+        "notes": "step_18"
+      },
+      {
+        "timestamp": 4.75,
+        "cpu_fraction": 0.218,
+        "edge_load_fraction": 0.2,
+        "notes": "step_19"
+      },
+      {
+        "timestamp": 5.0,
+        "cpu_fraction": 0.259,
+        "edge_load_fraction": 0.2,
+        "notes": "step_20"
+      },
+      {
+        "timestamp": 5.25,
+        "cpu_fraction": 0.28,
+        "edge_load_fraction": 0.2,
+        "notes": "step_21"
+      },
+      {
+        "timestamp": 5.5,
+        "cpu_fraction": 0.267,
+        "edge_load_fraction": 0.2,
+        "notes": "step_22"
+      },
+      {
+        "timestamp": 5.75,
+        "cpu_fraction": 0.275,
+        "edge_load_fraction": 0.2,
+        "notes": "step_23"
+      },
+      {
+        "timestamp": 6.0,
+        "cpu_fraction": 0.273,
+        "edge_load_fraction": 0.2,
+        "notes": "step_24"
+      },
+      {
+        "timestamp": 6.25,
+        "cpu_fraction": 0.226,
+        "edge_load_fraction": 0.2,
+        "notes": "step_25"
+      },
+      {
+        "timestamp": 6.5,
+        "cpu_fraction": 0.24,
+        "edge_load_fraction": 0.2,
+        "notes": "step_26"
+      },
+      {
+        "timestamp": 6.75,
+        "cpu_fraction": 0.239,
+        "edge_load_fraction": 0.2,
+        "notes": "step_27"
+      },
+      {
+        "timestamp": 7.0,
+        "cpu_fraction": 0.293,
+        "edge_load_fraction": 0.2,
+        "notes": "step_28"
+      },
+      {
+        "timestamp": 7.25,
+        "cpu_fraction": 0.276,
+        "edge_load_fraction": 0.2,
+        "notes": "step_29"
+      },
+      {
+        "timestamp": 7.5,
+        "cpu_fraction": 0.202,
+        "edge_load_fraction": 0.2,
+        "notes": "step_30"
+      },
+      {
+        "timestamp": 7.75,
+        "cpu_fraction": 0.265,
+        "edge_load_fraction": 0.2,
+        "notes": "step_31"
+      },
+      {
+        "timestamp": 8.0,
+        "cpu_fraction": 0.256,
+        "edge_load_fraction": 0.2,
+        "notes": "step_32"
+      },
+      {
+        "timestamp": 8.25,
+        "cpu_fraction": 0.28,
+        "edge_load_fraction": 0.2,
+        "notes": "step_33"
+      },
+      {
+        "timestamp": 8.5,
+        "cpu_fraction": 0.228,
+        "edge_load_fraction": 0.2,
+        "notes": "step_34"
+      },
+      {
+        "timestamp": 8.75,
+        "cpu_fraction": 0.281,
+        "edge_load_fraction": 0.2,
+        "notes": "step_35"
+      },
+      {
+        "timestamp": 9.0,
+        "cpu_fraction": 0.221,
+        "edge_load_fraction": 0.2,
+        "notes": "step_36"
+      },
+      {
+        "timestamp": 9.25,
+        "cpu_fraction": 0.233,
+        "edge_load_fraction": 0.2,
+        "notes": "step_37"
+      },
+      {
+        "timestamp": 9.5,
+        "cpu_fraction": 0.274,
+        "edge_load_fraction": 0.2,
+        "notes": "step_38"
+      },
+      {
+        "timestamp": 9.75,
+        "cpu_fraction": 0.205,
+        "edge_load_fraction": 0.2,
+        "notes": "step_39"
+      },
+      {
+        "timestamp": 10.0,
+        "cpu_fraction": 0.257,
+        "edge_load_fraction": 0.2,
+        "notes": "step_40"
+      },
+      {
+        "timestamp": 10.25,
+        "cpu_fraction": 0.208,
+        "edge_load_fraction": 0.2,
+        "notes": "step_41"
+      },
+      {
+        "timestamp": 10.5,
+        "cpu_fraction": 0.222,
+        "edge_load_fraction": 0.2,
+        "notes": "step_42"
+      },
+      {
+        "timestamp": 10.75,
+        "cpu_fraction": 0.201,
+        "edge_load_fraction": 0.2,
+        "notes": "step_43"
+      },
+      {
+        "timestamp": 11.0,
+        "cpu_fraction": 0.224,
+        "edge_load_fraction": 0.2,
+        "notes": "step_44"
+      },
+      {
+        "timestamp": 11.25,
+        "cpu_fraction": 0.204,
+        "edge_load_fraction": 0.2,
+        "notes": "step_45"
+      },
+      {
+        "timestamp": 11.5,
+        "cpu_fraction": 0.248,
+        "edge_load_fraction": 0.2,
+        "notes": "step_46"
+      },
+      {
+        "timestamp": 11.75,
+        "cpu_fraction": 0.292,
+        "edge_load_fraction": 0.2,
+        "notes": "step_47"
+      },
+      {
+        "timestamp": 12.0,
+        "cpu_fraction": 0.274,
+        "edge_load_fraction": 0.2,
+        "notes": "step_48"
+      },
+      {
+        "timestamp": 12.25,
+        "cpu_fraction": 0.207,
+        "edge_load_fraction": 0.2,
+        "notes": "step_49"
+      },
+      {
+        "timestamp": 12.5,
+        "cpu_fraction": 0.293,
+        "edge_load_fraction": 0.2,
+        "notes": "step_50"
+      },
+      {
+        "timestamp": 12.75,
+        "cpu_fraction": 0.299,
+        "edge_load_fraction": 0.2,
+        "notes": "step_51"
+      },
+      {
+        "timestamp": 13.0,
+        "cpu_fraction": 0.246,
+        "edge_load_fraction": 0.2,
+        "notes": "step_52"
+      },
+      {
+        "timestamp": 13.25,
+        "cpu_fraction": 0.264,
+        "edge_load_fraction": 0.2,
+        "notes": "step_53"
+      },
+      {
+        "timestamp": 13.5,
+        "cpu_fraction": 0.279,
+        "edge_load_fraction": 0.2,
+        "notes": "step_54"
+      },
+      {
+        "timestamp": 13.75,
+        "cpu_fraction": 0.242,
+        "edge_load_fraction": 0.2,
+        "notes": "step_55"
+      },
+      {
+        "timestamp": 14.0,
+        "cpu_fraction": 0.223,
+        "edge_load_fraction": 0.2,
+        "notes": "step_56"
+      },
+      {
+        "timestamp": 14.25,
+        "cpu_fraction": 0.266,
+        "edge_load_fraction": 0.2,
+        "notes": "step_57"
+      },
+      {
+        "timestamp": 14.5,
+        "cpu_fraction": 0.25,
+        "edge_load_fraction": 0.2,
+        "notes": "step_58"
+      },
+      {
+        "timestamp": 14.75,
+        "cpu_fraction": 0.24,
+        "edge_load_fraction": 0.2,
+        "notes": "step_59"
+      },
+      {
+        "timestamp": 15.0,
+        "cpu_fraction": 0.209,
+        "edge_load_fraction": 0.2,
+        "notes": "step_60"
+      },
+      {
+        "timestamp": 15.25,
+        "cpu_fraction": 0.202,
+        "edge_load_fraction": 0.2,
+        "notes": "step_61"
+      },
+      {
+        "timestamp": 15.5,
+        "cpu_fraction": 0.261,
+        "edge_load_fraction": 0.2,
+        "notes": "step_62"
+      },
+      {
+        "timestamp": 15.75,
+        "cpu_fraction": 0.224,
+        "edge_load_fraction": 0.2,
+        "notes": "step_63"
+      }
+    ]
+  },
+  "workload": {
+    "prompt": "The quick brown fox",
+    "max_new_tokens": 16,
+    "temperature": 0.0,
+    "seed": 1465626348
+  },
+  "metadata": {
+    "generator": "TraceGenerator",
+    "scenario_id": "kv_cache_driven_memory_growth",
+    "seed": 1465626348,
+    "n_steps": 64,
+    "sampling_interval_s": 0.25
+  }
+}

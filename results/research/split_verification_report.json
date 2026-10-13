@@ -1,0 +1,353 @@
+{
+  "model_name": "",
+  "total_layers": 6,
+  "partition_plan_id": "{'total_layers': 6, 'user_device': [0, 1], 'edge_a': [2, 3], 'edge_b': [4, 5], 'boundaries': [{'source_tier': 'user_device', 'destination_tier': 'edge_a', 'cut_layer': 1}, {'source_tier': 'edge_a', 'destination_tier': 'edge_b', 'cut_layer': 3}]}",
+  "active_tiers": [
+    "user_device",
+    "edge_a",
+    "edge_b"
+  ],
+  "device_placement_mode": "CPU_PARTITIONED",
+  "placement_audits": [
+    {
+      "tier_id": "user_device",
+      "tier_name": "User Device",
+      "target_device": "cpu",
+      "layer_start": 0,
+      "layer_end": 1,
+      "layer_count": 2,
+      "parameter_count": 396544,
+      "is_cuda_device": false
+    },
+    {
+      "tier_id": "edge_a",
+      "tier_name": "Edge Node A",
+      "target_device": "cpu",
+      "layer_start": 2,
+      "layer_end": 3,
+      "layer_count": 2,
+      "parameter_count": 396544,
+      "is_cuda_device": false
+    },
+    {
+      "tier_id": "edge_b",
+      "tier_name": "Edge Node B",
+      "target_device": "cpu",
+      "layer_start": 4,
+      "layer_end": 5,
+      "layer_count": 2,
+      "parameter_count": 396544,
+      "is_cuda_device": false
+    }
+  ],
+  "transfers": [
+    {
+      "source_tier": "user_device",
+      "destination_tier": "edge_a",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        32,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 16384,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "edge_a",
+      "destination_tier": "edge_b",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        32,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 16384,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "user_device",
+      "destination_tier": "edge_a",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "edge_a",
+      "destination_tier": "edge_b",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "user_device",
+      "destination_tier": "edge_a",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "edge_a",
+      "destination_tier": "edge_b",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "user_device",
+      "destination_tier": "edge_a",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "edge_a",
+      "destination_tier": "edge_b",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "user_device",
+      "destination_tier": "edge_a",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "edge_a",
+      "destination_tier": "edge_b",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "user_device",
+      "destination_tier": "edge_a",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "edge_a",
+      "destination_tier": "edge_b",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "user_device",
+      "destination_tier": "edge_a",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "edge_a",
+      "destination_tier": "edge_b",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "user_device",
+      "destination_tier": "edge_a",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    },
+    {
+      "source_tier": "edge_a",
+      "destination_tier": "edge_b",
+      "source_device": "cpu",
+      "destination_device": "cpu",
+      "tensor_shape": [
+        1,
+        1,
+        128
+      ],
+      "tensor_dtype": "torch.float32",
+      "size_bytes": 512,
+      "transfer_duration_ms": 0.0,
+      "is_cross_device": false,
+      "is_simulated_transfer": false
+    }
+  ],
+  "total_transfer_bytes": 39936,
+  "total_transfer_time_ms": 0.0,
+  "token_parity_verified": true,
+  "generated_tokens_split": [
+    99,
+    99,
+    99,
+    99,
+    99,
+    99,
+    99,
+    99
+  ],
+  "generated_tokens_monolithic": [
+    99,
+    99,
+    99,
+    99,
+    99,
+    99,
+    99,
+    99
+  ],
+  "prompt": "The future of distributed edge computing and predictive resource allocation",
+  "generated_text": "cccccccc",
+  "execution_time_seconds": 0.10735379997640848,
+  "kv_cache_summary": {
+    "cached_layers_count": 6,
+    "total_kv_bytes": 239616,
+    "total_kv_mb": 0.2285,
+    "sample_layer_kv_shape": [
+      1,
+      4,
+      39,
+      32
+    ]
+  },
+  "synchronization_recorded": false,
+  "evidence_quality": {
+    "experiment_class": "CLASS_5_MIXED",
+    "device_placement_mode": "CPU_PARTITIONED",
+    "gpu_telemetry_genuine": false,
+    "network_transport_physical": false,
+    "network_dynamics_emulated": false,
+    "inference_execution_genuine": true,
+    "cpu_only_fallback": true,
+    "limitations": [
+      "CUDA hardware unavailable: VRAM telemetry is UNAVAILABLE and CPU host RAM was queried.",
+      "Hybrid execution combining physical compute with emulated network traces."
+    ]
+  },
+  "parity_mismatch_details": null
+}

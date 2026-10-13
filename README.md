@@ -1,6 +1,6 @@
 # Predictive VRAM & Network-Aware Dynamic Split Inference for Edge LLMs
 
-[![Research Prototype](https://img.shields.io/badge/Status-Module_8_Completed-brightgreen.svg)](#)
+[![Research Prototype](https://img.shields.io/badge/Status-Module_13_Completed-brightgreen.svg)](#)
 [![Python Version](https://img.shields.io/badge/Python-3.12-blue.svg)](#)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.10.0+cpu-orange.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#)
@@ -160,8 +160,14 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
   - All-or-nothing transactional migration lifecycle; quiescence lock management; stateful layer and KV-cache delta transfer; rollback and state restoration on injected faults; Fast and Deep verification; verified token parity before/after migration.
 - **Module 9 (Closed-Loop Predictive Runtime Integration):** COMPLETE (17 tests)
   - Closed-loop orchestration loop; periodic control scheduling; end-to-end autoregressive generation with live migrations; complete runtime trace logging.
-- **Module 10 (Experimental Harness, Baselines, Ablations & Statistical Evaluation):** COMPLETE
+- **Module 10 (Experimental Harness, Baselines, Ablations & Statistical Evaluation):** COMPLETE (37 tests)
   - Five research baselines (B1-B5); deterministic trace generator & bit-identical replay; full metric suite calculation; statistical aggregation with effect sizes; A1-A8 ablation suite; sensitivity sweeper; invariant validation & sanity checking; research dataset export (CSV/JSON).
+- **Module 11 (Real-Hardware Integration, Network Testbeds & 6G-Oriented Validation):** COMPLETE (34 tests)
+  - Pluggable hardware telemetry (CPU, CUDA, Mock) without host RAM substitution for VRAM; capability registry; real network probing (RTT, jitter, loss, goodput); safe framed authenticated TCP transport (zero-pickle, SHA-256 verified); 10 edge operating profiles + exploratory 6G profiles; platform-guarded Linux netem shaping; memory validation engine.
+- **Module 12 (Reproducible Research, Statistical Validation & Publication-Ready Evaluation):** COMPLETE (20 tests)
+  - Reproducible research runner (`ResearchRunner`) with cryptographic seed management; configuration snapshot hashing and resume verification; rigorous inferential statistics (exact Student-t & bootstrap CIs, paired t-tests, Wilcoxon signed-rank, Cohen's d, Hedges' g correction, Cliff's delta, Holm-Bonferroni, Benjamini-Hochberg FDR); publication-ready artifact generator (Matplotlib figures, formatted CSV & Markdown tables); 15-section scientific research report compiler (`report.md`); comprehensive provenance validator. Total test suite: **553 passed, 2 skipped** (555 tests).
+- **Module 13 (Real-GPU Validation, Empirical Benchmarking & Research-Claim Verification):** COMPLETE (12 tests)
+  - Hardware-aware empirical validation workflow; 5 non-fungible experiment classes (`CLASS_1_REAL_GPU`, `CLASS_2_REAL_SOCKET`, `CLASS_3_NETWORK_EMULATED`, `CLASS_4_FULLY_SIMULATED`, `CLASS_5_MIXED`); genuine split inference audit & bit-identical token parity verifier against monolithic execution; 5-phase memory profiling (idle, model placed, warmup, prefill, generation); memory feasibility safety evaluation (critical False-Safe rate vs False-Unsafe rate); full regression protection with zero CUDA fabrication on CPU host (`CPU_ONLY_NOT_PERFORMED`). Total test suite: **563 passed, 4 skipped** (567 tests).
 
 ---
 
@@ -290,3 +296,87 @@ Run the Module 8 failure injection and transactional rollback demo:
 ```bash
 python scripts/run_migration_failure_demo.py
 ```
+
+Run Module 11 Hardware and Network validation suite (535 tests):
+```bash
+uv run pytest tests/ -v
+```
+
+Inspect local hardware discovery and telemetry capabilities:
+```bash
+python scripts/inspect_hardware.py --provider auto
+```
+
+Benchmark safe authenticated TCP framed tensor transfer:
+```bash
+python scripts/benchmark_real_transfer.py --tensor-dim 512 --trials 5
+```
+
+Benchmark physical or mock network link metrics:
+```bash
+python scripts/benchmark_network.py --host 127.0.0.1 --port 8000 --trials 5 --mock
+```
+
+Evaluate end-to-end 6G exploratory scenarios and memory validation:
+```bash
+python scripts/evaluate_hardware_integration.py --provider auto --steps 16
+```
+
+---
+
+## 6. Module 12: Research Reproducibility & Publication CLI
+
+Run the full 555-test verification suite across Modules 1 through 12:
+```bash
+uv run pytest tests/ -v
+```
+
+Execute a reproducible research experiment campaign:
+```bash
+uv run python scripts/run_research_experiment.py --config configs/research/default.yaml --experiment-id campaign_01 --repetitions 3
+```
+
+Resume an interrupted experiment without re-running completed trials:
+```bash
+uv run python scripts/run_research_experiment.py --config configs/research/default.yaml --experiment-id campaign_01 --resume
+```
+
+Perform statistical analysis and generate publication figures independently of inference:
+```bash
+uv run python scripts/analyze_research_results.py --input-dir results/research/campaign_01 --reference-policy predictive
+```
+
+Audit research artifacts, verify SHA-256 checksums, and validate physical invariants:
+```bash
+uv run python scripts/validate_research_artifacts.py --input-dir results/research/campaign_01
+```
+
+Compile a comprehensive 15-section publication-ready Markdown report:
+```bash
+uv run python scripts/generate_research_report.py --input-dir results/research/campaign_01
+```
+
+---
+
+## 7. Module 13: Real-GPU Validation & Empirical Benchmarking CLI
+
+Inspect local hardware telemetry, compute capabilities, and memory headroom:
+```bash
+uv run python scripts/inspect_hardware.py --provider auto
+```
+
+Verify genuine split inference device placement and token parity against monolithic reference:
+```bash
+uv run python scripts/verify_split_inference.py --device auto --tokens 8
+```
+
+Run phased GPU memory profiling (Idle, Model Placed, Warmup, Prefill, Generation) and workload matrix:
+```bash
+uv run python scripts/run_gpu_validation.py --config configs/research/gpu_validation.yaml
+```
+
+Run the full 567-test suite across Modules 1 through 13:
+```bash
+uv run pytest tests/ -v
+```
+

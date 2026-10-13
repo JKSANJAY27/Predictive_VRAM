@@ -1,0 +1,28 @@
+Policy,Metric,Unit,N,Mean,95% CI,Median,"IQR [Q25, Q75]",Std Dev,Min,Max
+joint_reactive,mean_itl_ms,milliseconds,4,10.5,"[10.50, 10.50]",10.5,"[10.50, 10.50]",0.0,10.5,10.5
+joint_reactive,median_itl_ms,milliseconds,4,10.5,"[10.50, 10.50]",10.5,"[10.50, 10.50]",0.0,10.5,10.5
+joint_reactive,p95_itl_ms,milliseconds,4,10.5,"[10.50, 10.50]",10.5,"[10.50, 10.50]",0.0,10.5,10.5
+joint_reactive,tokens_per_second,tokens/sec,4,502010.04,"[427247.99, 576772.09]",484899.4,"[480382.96, 506526.48]",46984.01,466912.48,571328.9
+joint_reactive,total_switches,count,4,0.0,"[0.00, 0.00]",0.0,"[0.00, 0.00]",0.0,0.0,0.0
+joint_reactive,total_migration_time_ms,milliseconds,4,0.0,"[0.00, 0.00]",0.0,"[0.00, 0.00]",0.0,0.0,0.0
+joint_reactive,total_transferred_mb,megabytes,0,,N/A,,N/A,,,
+joint_reactive,total_control_overhead_ms,milliseconds,0,,N/A,,N/A,,,
+joint_reactive,peak_memory_pressure,ratio [0.0-1.0],0,,N/A,,N/A,,,
+predictive,mean_itl_ms,milliseconds,4,10.5,"[10.50, 10.50]",10.5,"[10.50, 10.50]",0.0,10.5,10.5
+predictive,median_itl_ms,milliseconds,4,10.5,"[10.50, 10.50]",10.5,"[10.50, 10.50]",0.0,10.5,10.5
+predictive,p95_itl_ms,milliseconds,4,10.5,"[10.50, 10.50]",10.5,"[10.50, 10.50]",0.0,10.5,10.5
+predictive,tokens_per_second,tokens/sec,4,512289.86,"[451040.76, 573538.95]",523813.26,"[501505.20, 534597.92]",38491.83,457175.99,544356.91
+predictive,total_switches,count,4,0.0,"[0.00, 0.00]",0.0,"[0.00, 0.00]",0.0,0.0,0.0
+predictive,total_migration_time_ms,milliseconds,4,0.0,"[0.00, 0.00]",0.0,"[0.00, 0.00]",0.0,0.0,0.0
+predictive,total_transferred_mb,megabytes,0,,N/A,,N/A,,,
+predictive,total_control_overhead_ms,milliseconds,0,,N/A,,N/A,,,
+predictive,peak_memory_pressure,ratio [0.0-1.0],0,,N/A,,N/A,,,
+static,mean_itl_ms,milliseconds,4,10.5,"[10.50, 10.50]",10.5,"[10.50, 10.50]",0.0,10.5,10.5
+static,median_itl_ms,milliseconds,4,10.5,"[10.50, 10.50]",10.5,"[10.50, 10.50]",0.0,10.5,10.5
+static,p95_itl_ms,milliseconds,4,10.5,"[10.50, 10.50]",10.5,"[10.50, 10.50]",0.0,10.5,10.5
+static,tokens_per_second,tokens/sec,4,430418.58,"[-10282.13, 871119.29]",535162.02,"[380451.21, 585129.38]",276957.2,22589.8,628760.48
+static,total_switches,count,4,0.0,"[0.00, 0.00]",0.0,"[0.00, 0.00]",0.0,0.0,0.0
+static,total_migration_time_ms,milliseconds,4,0.0,"[0.00, 0.00]",0.0,"[0.00, 0.00]",0.0,0.0,0.0
+static,total_transferred_mb,megabytes,0,,N/A,,N/A,,,
+static,total_control_overhead_ms,milliseconds,0,,N/A,,N/A,,,
+static,peak_memory_pressure,ratio [0.0-1.0],0,,N/A,,N/A,,,

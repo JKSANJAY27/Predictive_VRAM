@@ -1,0 +1,385 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "module12_validation_run",
+  "title": "Empirical Evaluation of Predictive VRAM & Network-Aware Split Inference",
+  "created_at_utc": "2026-10-12T10:58:32.452315+00:00",
+  "environment": {
+    "python_version": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+    "python_executable": "C:\\Users\\reape\\OneDrive\\Desktop\\Predictive_VRAM\\.venv\\Scripts\\python.exe",
+    "platform_system": "Windows",
+    "platform_release": "11",
+    "platform_machine": "AMD64",
+    "processor": "AMD64 Family 23 Model 104 Stepping 1, AuthenticAMD",
+    "git_commit": "5c66398402e3dd6390d02f87105419672c5e5f62",
+    "git_dirty": true,
+    "cuda_available": false,
+    "cuda_device_count": 0,
+    "cuda_device_names": [],
+    "host_ram_total_mb": 14181.49,
+    "host_ram_available_mb": 756.99,
+    "cpu_count_logical": 16,
+    "cpu_count_physical": 8,
+    "dependency_versions": {
+      "torch": "2.14.1+cpu",
+      "transformers": "5.19.0",
+      "accelerate": "1.15.0",
+      "numpy": "2.5.2",
+      "pandas": "3.0.6",
+      "scipy": "1.18.1",
+      "psutil": "7.2.2",
+      "matplotlib": "3.11.2",
+      "pytest": "9.1.1"
+    }
+  },
+  "resolved_config": {
+    "experiment_id": "module12_validation_run",
+    "title": "Empirical Evaluation of Predictive VRAM & Network-Aware Split Inference",
+    "seed": 42,
+    "execution_mode": "simulation",
+    "max_new_tokens": 16,
+    "control_interval_tokens": 2,
+    "repetitions": 2,
+    "scenarios": [
+      "stable",
+      "kv_cache_driven_memory_growth"
+    ],
+    "policies": [
+      "static",
+      "predictive",
+      "joint_reactive"
+    ],
+    "confidence_level": 0.95,
+    "alpha_significance": 0.05,
+    "multiple_testing_correction": "holm",
+    "is_cpu_only": true,
+    "record_vram_telemetry": false,
+    "base_output_dir": "results/research"
+  },
+  "config_hash": "4dd621674ddd310ea67d930835ca6de13bef1513d9f34ec6bd9a82dcf36190a9",
+  "root_seed": 42,
+  "seed_derivation_method": "sha256(root_seed:component:repetition:subtask)",
+  "scenarios": [
+    "stable",
+    "kv_cache_driven_memory_growth"
+  ],
+  "policies": [
+    "static",
+    "predictive",
+    "joint_reactive"
+  ],
+  "requested_repetitions": 2,
+  "completed_repetitions": 12,
+  "failed_repetitions": 0,
+  "skipped_repetitions": 0,
+  "metric_definitions": {
+    "ttft_ms": {
+      "unit": "milliseconds",
+      "category": "Inference Latency",
+      "description": "Time to first token generation after request arrival.",
+      "aggregation": "mean"
+    },
+    "mean_itl_ms": {
+      "unit": "milliseconds",
+      "category": "Inference Latency",
+      "description": "Mean inter-token latency across all generated tokens in trial.",
+      "aggregation": "mean"
+    },
+    "median_itl_ms": {
+      "unit": "milliseconds",
+      "category": "Inference Latency",
+      "description": "Median inter-token latency across all generated tokens in trial.",
+      "aggregation": "median"
+    },
+    "p95_itl_ms": {
+      "unit": "milliseconds",
+      "category": "Inference Latency",
+      "description": "95th percentile inter-token latency (tail latency).",
+      "aggregation": "p95"
+    },
+    "p99_itl_ms": {
+      "unit": "milliseconds",
+      "category": "Inference Latency",
+      "description": "99th percentile inter-token latency (tail latency).",
+      "aggregation": "p99"
+    },
+    "end_to_end_latency_ms": {
+      "unit": "milliseconds",
+      "category": "Inference Latency",
+      "description": "Total generation time from prompt start to final token completion.",
+      "aggregation": "mean"
+    },
+    "tokens_per_second": {
+      "unit": "tokens/sec",
+      "category": "Throughput",
+      "description": "Effective generation throughput (total tokens / generation duration).",
+      "aggregation": "mean"
+    },
+    "total_switches": {
+      "unit": "count",
+      "category": "Adaptation & Stability",
+      "description": "Total partition transitions executed during trial.",
+      "aggregation": "sum"
+    },
+    "switch_frequency_per_token": {
+      "unit": "switches/token",
+      "category": "Adaptation & Stability",
+      "description": "Ratio of total switches to completed generation tokens.",
+      "aggregation": "mean"
+    },
+    "total_migration_time_ms": {
+      "unit": "milliseconds",
+      "category": "Migration Overhead",
+      "description": "Cumulative time spent transferring state during partition migrations.",
+      "aggregation": "sum"
+    },
+    "total_transferred_mb": {
+      "unit": "megabytes",
+      "category": "Migration Overhead",
+      "description": "Total tensor state transferred over network during migrations.",
+      "aggregation": "sum"
+    },
+    "slo_violation_rate": {
+      "unit": "fraction [0.0-1.0]",
+      "category": "SLO Attainment",
+      "description": "Fraction of token intervals exceeding the configured SLO target.",
+      "aggregation": "mean"
+    },
+    "total_control_overhead_ms": {
+      "unit": "milliseconds",
+      "category": "Controller Overhead",
+      "description": "Total execution time spent evaluating costs, prediction, and candidate plans.",
+      "aggregation": "sum"
+    },
+    "control_overhead_fraction": {
+      "unit": "fraction [0.0-1.0]",
+      "category": "Controller Overhead",
+      "description": "Ratio of controller overhead to total generation time.",
+      "aggregation": "mean"
+    },
+    "peak_memory_pressure": {
+      "unit": "ratio [0.0-1.0]",
+      "category": "Memory Safety",
+      "description": "Peak ratio of allocated memory to available headroom.",
+      "aggregation": "max"
+    },
+    "peak_vram_mb": {
+      "unit": "megabytes",
+      "category": "Memory Safety",
+      "description": "Peak physical GPU allocated memory (UNAVAILABLE on CPU platforms).",
+      "aggregation": "max"
+    },
+    "host_ram_mb": {
+      "unit": "megabytes",
+      "category": "Memory Safety",
+      "description": "Host physical RAM consumption (reported separately from VRAM).",
+      "aggregation": "mean"
+    },
+    "prediction_mae_latency": {
+      "unit": "milliseconds",
+      "category": "Prediction Quality",
+      "description": "Mean absolute error between forecasted latency and actual observed latency.",
+      "aggregation": "mean"
+    },
+    "prediction_rmse_latency": {
+      "unit": "milliseconds",
+      "category": "Prediction Quality",
+      "description": "Root mean squared error between forecasted latency and actual observed latency.",
+      "aggregation": "mean"
+    }
+  },
+  "data_source_provenance": {},
+  "artifact_checksums": {
+    "raw_observations.csv": "b1385a33279ebe4382fe379fd65d6810037c07a2b49eeebc0928636dad5ee6a6",
+    "tables/table1_policy_summary.csv": "3905fd00d7ce8963ebaeeb8d8072f6bf7d83a8573b3fcfdf7eda528b94ae89cf",
+    "tables/table1_policy_summary.md": "12f5b33b4633920b2cb5c15eeedcc5c47ba1fdbb59ab955e28481eac203e2c0e",
+    "tables/table4_provenance_matrix.csv": "3cb5f64619e14c33f944a36156d6400729b295c365fd247cc5e85d8ddff55ad1",
+    "tables/table4_provenance_matrix.md": "1d649b5b905704ed3c96181d987f30a28cfd67a78f3753a2957bb82634cdf06e",
+    "figures/fig1_latency_distribution.png": "6b31d65c122b5e3a606d513e93b1b56d33b51e97459d3da2cf54c5853cd30267",
+    "figures/fig2_throughput_comparison.png": "c56d44129a5b54ba509b9b03f169dbced3a9db5b84a6f413963d4826cb66e932",
+    "figures/fig3_switching_and_overhead.png": "fe9878894b70493597a5e4c0d638e7191fc5f109025d18b355a7069bf3cf4330",
+    "report.md": "54479cb7c352c8c9328e436e37e6ba155b8f223bfad75e87c6bee49e6c6b4c11"
+  },
+  "trials": [
+    {
+      "trial_id": "module12_validation_run_stable_static_rep0_s1891309185",
+      "scenario_id": "stable",
+      "baseline_id": "static",
+      "seed": 1891309185,
+      "repetition": 0,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:33Z",
+      "completed_at": "2026-10-12T10:58:33Z",
+      "execution_duration_sec": 0.8633,
+      "output_artifact_path": "raw/module12_validation_run_stable_static_rep0_s1891309185.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_stable_static_rep1_s1284766855",
+      "scenario_id": "stable",
+      "baseline_id": "static",
+      "seed": 1284766855,
+      "repetition": 1,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:33Z",
+      "completed_at": "2026-10-12T10:58:33Z",
+      "execution_duration_sec": 0.0925,
+      "output_artifact_path": "raw/module12_validation_run_stable_static_rep1_s1284766855.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_stable_predictive_rep0_s1363388078",
+      "scenario_id": "stable",
+      "baseline_id": "predictive",
+      "seed": 1363388078,
+      "repetition": 0,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:33Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.0971,
+      "output_artifact_path": "raw/module12_validation_run_stable_predictive_rep0_s1363388078.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_stable_predictive_rep1_s42439272",
+      "scenario_id": "stable",
+      "baseline_id": "predictive",
+      "seed": 42439272,
+      "repetition": 1,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:34Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.0915,
+      "output_artifact_path": "raw/module12_validation_run_stable_predictive_rep1_s42439272.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_stable_joint_reactive_rep0_s379216930",
+      "scenario_id": "stable",
+      "baseline_id": "joint_reactive",
+      "seed": 379216930,
+      "repetition": 0,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:34Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.0845,
+      "output_artifact_path": "raw/module12_validation_run_stable_joint_reactive_rep0_s379216930.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_stable_joint_reactive_rep1_s1944909536",
+      "scenario_id": "stable",
+      "baseline_id": "joint_reactive",
+      "seed": 1944909536,
+      "repetition": 1,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:34Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.1033,
+      "output_artifact_path": "raw/module12_validation_run_stable_joint_reactive_rep1_s1944909536.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_kv_cache_driven_memory_growth_static_rep0_s942590364",
+      "scenario_id": "kv_cache_driven_memory_growth",
+      "baseline_id": "static",
+      "seed": 942590364,
+      "repetition": 0,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:34Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.1023,
+      "output_artifact_path": "raw/module12_validation_run_kv_cache_driven_memory_growth_static_rep0_s942590364.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_kv_cache_driven_memory_growth_static_rep1_s1465626348",
+      "scenario_id": "kv_cache_driven_memory_growth",
+      "baseline_id": "static",
+      "seed": 1465626348,
+      "repetition": 1,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:34Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.0872,
+      "output_artifact_path": "raw/module12_validation_run_kv_cache_driven_memory_growth_static_rep1_s1465626348.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_kv_cache_driven_memory_growth_predictive_rep0_s2103051980",
+      "scenario_id": "kv_cache_driven_memory_growth",
+      "baseline_id": "predictive",
+      "seed": 2103051980,
+      "repetition": 0,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:34Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.0883,
+      "output_artifact_path": "raw/module12_validation_run_kv_cache_driven_memory_growth_predictive_rep0_s2103051980.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_kv_cache_driven_memory_growth_predictive_rep1_s979985603",
+      "scenario_id": "kv_cache_driven_memory_growth",
+      "baseline_id": "predictive",
+      "seed": 979985603,
+      "repetition": 1,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:34Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.0982,
+      "output_artifact_path": "raw/module12_validation_run_kv_cache_driven_memory_growth_predictive_rep1_s979985603.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_kv_cache_driven_memory_growth_joint_reactive_rep0_s724678998",
+      "scenario_id": "kv_cache_driven_memory_growth",
+      "baseline_id": "joint_reactive",
+      "seed": 724678998,
+      "repetition": 0,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:34Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.0946,
+      "output_artifact_path": "raw/module12_validation_run_kv_cache_driven_memory_growth_joint_reactive_rep0_s724678998.json",
+      "error_message": null,
+      "error_trace": null
+    },
+    {
+      "trial_id": "module12_validation_run_kv_cache_driven_memory_growth_joint_reactive_rep1_s1346759413",
+      "scenario_id": "kv_cache_driven_memory_growth",
+      "baseline_id": "joint_reactive",
+      "seed": 1346759413,
+      "repetition": 1,
+      "ablation_id": "none",
+      "status": "completed",
+      "started_at": "2026-10-12T10:58:34Z",
+      "completed_at": "2026-10-12T10:58:34Z",
+      "execution_duration_sec": 0.093,
+      "output_artifact_path": "raw/module12_validation_run_kv_cache_driven_memory_growth_joint_reactive_rep1_s1346759413.json",
+      "error_message": null,
+      "error_trace": null
+    }
+  ],
+  "exceptions": []
+}

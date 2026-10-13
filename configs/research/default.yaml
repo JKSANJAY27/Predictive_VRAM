@@ -1,0 +1,40 @@
+# ==============================================================================
+# Research Evaluation & Statistical Validation Configuration (Module 12)
+# ==============================================================================
+
+experiment_id: "default_research_study"
+title: "Empirical Evaluation of Predictive VRAM & Network-Aware Split Inference"
+seed: 42
+execution_mode: "simulation"
+
+# Workload & Token Generation Configuration
+max_new_tokens: 16
+control_interval_tokens: 2
+repetitions: 3
+
+# Evaluated Scenarios (from Catalog and 6G Profiles)
+scenarios:
+  - "stable"
+  - "kv_cache_driven_memory_growth"
+  - "bandwidth_drop_step"
+  - "six_g_high_bandwidth_low_rtt"
+
+# Evaluated Policies (B1 through B5)
+policies:
+  - "static"
+  - "network_reactive"
+  - "memory_reactive"
+  - "joint_reactive"
+  - "predictive"
+
+# Statistical Settings
+confidence_level: 0.95
+alpha_significance: 0.05
+multiple_testing_correction: "holm"  # "holm" | "fdr"
+
+# Hardware / Telemetry Constraints
+is_cpu_only: true
+record_vram_telemetry: false
+
+# Storage Directories
+base_output_dir: "results/research"
