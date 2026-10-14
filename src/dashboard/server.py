@@ -1,18 +1,18 @@
 """
 Web Dashboard Server for Predictive VRAM & Split Inference Runtime.
 
-Serves an interactive dark-mode dashboard on localhost with real-time API
-endpoints executing genuine backend algorithms (migration, prediction,
-split verification, split catalog, hardware telemetry).
+Serves an interactive grey neon glassmorphism dashboard on localhost with real-time API
+endpoints executing genuine backend algorithms (Scenarios A-E, transactional migration,
+prediction, split verification, split catalog, real and emulated hardware telemetry).
 """
 
 from __future__ import annotations
 
 import json
 import logging
-import mimetypes
 import os
 import sys
+import threading
 import time
 import webbrowser
 from http import HTTPStatus
@@ -24,10 +24,15 @@ from typing import Any, Dict
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
+from src.dashboard.scenario_runner import ScenarioExecutionManager
+
 logger = logging.getLogger("dashboard_server")
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s - %(message)s")
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+
+# Global scenario execution manager singleton
+_SCENARIO_MANAGER = ScenarioExecutionManager(mock_cuda=False)
 
 
 class DashboardAPIHandler(SimpleHTTPRequestHandler):
@@ -66,8 +71,11 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(content)
                 return
 
-        if self.path == "/api/status":
-            self._handle_status()
+        if self.path == "/api/status" or self.path == "/api/state":
+            self._handle_state()
+            return
+        elif self.path == "/api/stream":
+            self._handle_sse_stream()
             return
         elif self.path == "/api/catalog":
             self._handle_catalog()
@@ -76,7 +84,19 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self) -> None:
-        if self.path == "/api/run-migration":
+        if self.path == "/api/scenario/start":
+            self._handle_scenario_start()
+            return
+        elif self.path == "/api/scenario/stop":
+            self._handle_scenario_stop()
+            return
+        elif self.path == "/api/scenario/reset":
+            self._handle_scenario_reset()
+            return
+        elif self.path == "/api/toggle-mock-cuda":
+            self._handle_toggle_mock_cuda()
+            return
+        elif self.path == "/api/run-migration":
             self._handle_run_migration()
             return
         elif self.path == "/api/run-prediction":
@@ -88,47 +108,112 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
 
         self._send_json({"error": f"Endpoint not found: {self.path}"}, status=404)
 
-    def _handle_status(self) -> None:
-        """Returns local hardware and runtime status."""
+    def _read_body_json(self) -> Dict[str, Any]:
+        length = int(self.headers.get("Content-Length", 0))
+        if length > 0:
+            raw = self.rfile.read(length)
+            return json.loads(raw.decode("utf-8"))
+        return {}
+
+    def _handle_state(self) -> None:
+        """Returns the single authoritative runtime and hardware state."""
         try:
-            import psutil
-            import torch
-            from src.hardware.factory import HardwareProviderFactory
-
-            provider = HardwareProviderFactory.create_provider("auto")
-            mem = provider.get_memory_telemetry()
-            comp = provider.get_compute_telemetry()
-
-            vram_val = mem.total_vram_bytes.value
-            vram_mb = f"{vram_val / (1024*1024):.1f} MB" if vram_val is not None else None
-            vram_alloc = mem.allocated_vram_bytes.value
-            vram_alloc_mb = f"{vram_alloc / (1024*1024):.1f} MB" if vram_alloc is not None else None
-
-            data = {
-                "system": {
-                    "cuda_available": torch.cuda.is_available(),
-                    "device_type": provider.device_type.value,
-                    "cpu_cores": psutil.cpu_count(logical=True),
-                    "cpu_percent": psutil.cpu_percent(),
-                    "host_ram_total_mb": round(mem.host_ram_total_bytes.value / (1024 * 1024), 1) if mem.host_ram_total_bytes.value else None,
-                    "host_ram_used_mb": round(mem.host_ram_used_bytes.value / (1024 * 1024), 1) if mem.host_ram_used_bytes.value else None,
-                    "vram_status": "UNAVAILABLE" if not torch.cuda.is_available() else "MEASURED",
-                    "vram_total_mb": vram_mb,
-                    "vram_allocated_mb": vram_alloc_mb,
-                },
-                "runtime": {
-                    "active_plan": "USER_DEVICE [0-1] | EDGE_A [2-3]",
-                    "model_name": "Synthetic LayeredTransformer (4 layers, d=64)",
-                    "network_bandwidth_mbps": 100.0,
-                    "network_rtt_ms": 5.0,
-                    "kv_growth_rate_bps": 4096.0,
-                }
-            }
-            self._send_json(data)
+            state = _SCENARIO_MANAGER.get_state_dict()
+            self._send_json(state)
         except Exception as exc:
-            logger.exception("Error in /api/status")
+            logger.exception("Error in /api/state")
             self._send_json({"error": str(exc)}, status=500)
 
+    def _handle_sse_stream(self) -> None:
+        """Streams live state updates as Server-Sent Events (SSE)."""
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("Connection", "keep-alive")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+
+        event_queue = []
+        lock = threading.Lock()
+
+        def on_update(state):
+            with lock:
+                event_queue.append(state)
+
+        _SCENARIO_MANAGER.add_listener(on_update)
+        try:
+            # Send immediate initial frame
+            initial = json.dumps(_SCENARIO_MANAGER.get_state_dict())
+            self.wfile.write(f"data: {initial}\n\n".encode("utf-8"))
+            self.wfile.flush()
+
+            while True:
+                time.sleep(0.15)
+                updates_to_send = []
+                with lock:
+                    if event_queue:
+                        updates_to_send = list(event_queue)
+                        event_queue.clear()
+
+                if updates_to_send:
+                    latest = updates_to_send[-1]
+                    payload = json.dumps(_SCENARIO_MANAGER.get_state_dict())
+                    self.wfile.write(f"data: {payload}\n\n".encode("utf-8"))
+                    self.wfile.flush()
+                else:
+                    # Heartbeat comment to keep connection active
+                    self.wfile.write(b": ping\n\n")
+                    self.wfile.flush()
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+            pass
+        finally:
+            _SCENARIO_MANAGER.remove_listener(on_update)
+
+    def _handle_scenario_start(self) -> None:
+        try:
+            body = self._read_body_json()
+            scenario_id = body.get("scenario", "A").upper()
+            seed = int(body.get("seed", 42))
+            step_delay = float(body.get("step_delay", 0.6))
+
+            ok = _SCENARIO_MANAGER.start_scenario(scenario_id=scenario_id, seed=seed, step_delay=step_delay)
+            if ok:
+                self._send_json({"success": True, "scenario": scenario_id, "seed": seed})
+            else:
+                self._send_json({"success": False, "error": "A scenario is already running."}, status=409)
+        except Exception as exc:
+            logger.exception("Error starting scenario")
+            self._send_json({"error": str(exc)}, status=500)
+
+    def _handle_scenario_stop(self) -> None:
+        try:
+            _SCENARIO_MANAGER.stop()
+            self._send_json({"success": True, "status": "stopped"})
+        except Exception as exc:
+            logger.exception("Error stopping scenario")
+            self._send_json({"error": str(exc)}, status=500)
+
+    def _handle_scenario_reset(self) -> None:
+        try:
+            _SCENARIO_MANAGER.reset()
+            self._send_json({"success": True, "status": "reset"})
+        except Exception as exc:
+            logger.exception("Error resetting scenario")
+            self._send_json({"error": str(exc)}, status=500)
+
+    def _handle_toggle_mock_cuda(self) -> None:
+        try:
+            body = self._read_body_json()
+            enabled = bool(body.get("enabled", True))
+            _SCENARIO_MANAGER.set_mock_cuda(enabled)
+            self._send_json({"success": True, "mock_cuda": enabled})
+        except Exception as exc:
+            logger.exception("Error toggling mock cuda")
+            self._send_json({"error": str(exc)}, status=500)
+
+    # -------------------------------------------------------------------------
+    # Legacy / Diagnostic Endpoints
+    # -------------------------------------------------------------------------
     def _handle_run_migration(self) -> None:
         """Executes genuine Module 8 transactional migration."""
         try:
@@ -146,7 +231,6 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
             from src.runtime.partition import PartitionPlan
             from src.runtime.tier import Tier, TierId
 
-            # 1. Setup model & tiers
             model = LayeredTransformer.create_synthetic(num_layers=4, hidden_size=64, num_heads=2, vocab_size=500, device="cpu")
             tiers = {
                 TierId.USER_DEVICE: Tier(tier_id=TierId.USER_DEVICE, name="User Device", device="cpu"),
@@ -159,20 +243,14 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
 
             executor = DistributedInferenceExecutor(model=model, tiers=tiers)
 
-            # Pre-migration generation
             t_pre_start = time.perf_counter()
             pre_res = executor.generate(prompt="Live edge stream", partition_plan=source_plan, max_new_tokens=8, temperature=0.0, do_sample=False)
             pre_duration_ms = (time.perf_counter() - t_pre_start) * 1000.0
 
-            # Migration
             executor._setup_tiers_for_plan(source_plan)
             executor.active_plan = source_plan
             adapter = RuntimeAdapter(executor)
-            provider = EmulatedNetworkTransfer(
-                bandwidth_mbps=100.0,
-                latency_ms=5.0,
-                fast_mode=True,
-            )
+            provider = EmulatedNetworkTransfer(bandwidth_mbps=100.0, latency_ms=5.0, fast_mode=True)
             config = MigrationConfig(
                 execution_mode=MigrationMode.EXECUTE,
                 verification_mode=VerificationMode.FAST,
@@ -183,11 +261,7 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
                 emulated_bandwidth_mbps=100.0,
                 emulated_latency_ms=5.0,
             )
-            manager = MigrationManager(
-                runtime_adapter=adapter,
-                config=config,
-                transfer_provider=provider,
-            )
+            manager = MigrationManager(runtime_adapter=adapter, config=config, transfer_provider=provider)
             request = MigrationRequest(
                 source_plan=source_plan,
                 target_plan=target_plan,
@@ -205,7 +279,6 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
 
             record = manager.execute(request)
 
-            # Post-migration generation
             t_post_start = time.perf_counter()
             post_res = executor.generate(prompt="Live edge stream", partition_plan=target_plan, max_new_tokens=8, temperature=0.0, do_sample=False)
             post_duration_ms = (time.perf_counter() - t_post_start) * 1000.0
