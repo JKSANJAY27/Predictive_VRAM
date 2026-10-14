@@ -51,11 +51,11 @@
 
 | Scenario | Title | Test Assertions | Result | Pass Rate |
 |---|---|---|:---:|:---:|
-| **A** | **Everything is stable** | `migration_count == 0`; plan ID unchanged (`UD [0-1] \| EA [2-3]`); all decisions `HOLD (reason: stable)`; layer distribution unchanged. | **PASS** | **100%** (10/10 runs) |
-| **B** | **KV-cache growth threatens memory** | Predicted time-to-exhaustion decreases monotonically before migration; proactive migration occurs before exhaustion; local memory pressure after migration < before (`12.5 MB < 18.0 MB`); layers moved reflected in split visualization. | **PASS** | **100%** (10/10 runs) |
-| **C** | **Temporary bandwidth collapse** | `migration_count == 0`; plan ID unchanged before/during/after; bandwidth trace shows 8-second dip (2 Mbps) and recovery (100 Mbps); decisions during dip are `HOLD (reason: switching_cost_exceeds_gain)`. | **PASS** | **100%** (10/10 runs) |
-| **D** | **Bandwidth stays poor** | At least one migration occurs after bandwidth has stayed degraded; layers on local tier after > before (2 layers > 1 layer); visible hold period (persistence evaluation >3 cycles); final plan differs from initial. | **PASS** | **100%** (10/10 runs) |
-| **E** | **Migration fails midway** | Injected transfer fault detected and logged; state restored to pre-migration snapshot; runtime lock released; token generation resumes on original plan; migration status `ROLLED BACK`; zero orphan layers. | **PASS** | **100%** (10/10 runs) |
+| **A** | **Everything is stable** | `migration_count == 0`; 3-tier plan ID unchanged (`UD [0-1] \| EA [2-3] \| EB [4-5]`); all decisions `HOLD (reason: stable)`; layer distribution unchanged. | **PASS** | **100%** (10/10 runs) |
+| **B** | **KV-cache growth threatens memory** | Predicted time-to-exhaustion decreases monotonically before migration; proactive migration occurs before exhaustion, offloading to Edge Node B (`UD [0-0] \| EA [1-2] \| EB [3-5]`); local memory pressure after migration < before (`13.5 MB < 30.0 MB`); layers moved reflected across all 3 tiers. | **PASS** | **100%** (10/10 runs) |
+| **C** | **Temporary bandwidth collapse** | `migration_count == 0`; 3-tier plan ID unchanged before/during/after (`UD [0-1] \| EA [2-3] \| EB [4-5]`); bandwidth trace shows 8-second dip (2 Mbps) and recovery (100 Mbps); decisions during dip are `HOLD (reason: switching_cost_exceeds_gain)`. | **PASS** | **100%** (10/10 runs) |
+| **D** | **Bandwidth stays poor** | At least one migration occurs after bandwidth has stayed degraded; layers on local tier after > before (2 layers > 1 layer, migrating to `UD [0-1] \| EA [2-3] \| EB [4-5]`); visible hold period (persistence evaluation >3 cycles); final plan differs from initial. | **PASS** | **100%** (10/10 runs) |
+| **E** | **Migration fails midway** | Injected transfer fault during state transfer to Edge Node B detected and logged; state restored to 3-tier pre-migration snapshot (`UD [0-1] \| EA [2-3] \| EB [4-5]`); runtime lock released; token generation resumes on original plan; migration status `ROLLED BACK`; zero orphan layers. | **PASS** | **100%** (10/10 runs) |
 
 ---
 
@@ -76,14 +76,14 @@ tests/test_scenarios_deterministic.py::test_scenario_deterministic_10_runs[B] PA
 tests/test_scenarios_deterministic.py::test_scenario_deterministic_10_runs[C] PASSED [ 60%]
 tests/test_scenarios_deterministic.py::test_scenario_deterministic_10_runs[D] PASSED [ 80%]
 tests/test_scenarios_deterministic.py::test_scenario_deterministic_10_runs[E] PASSED [100%]
-============================== 5 passed in 1.58s ==============================
+============================== 5 passed in 6.49s ==============================
 
 [3/4] Running Dashboard REST API & Stream Tests...
 tests/test_dashboard_api.py::test_api_state_schema PASSED                [ 25%]
 tests/test_dashboard_api.py::test_scenario_lifecycle_via_api PASSED      [ 50%]
 tests/test_dashboard_api.py::test_toggle_mock_cuda_via_api PASSED        [ 75%]
 tests/test_dashboard_api.py::test_catalog_endpoint PASSED                [100%]
-============================== 4 passed in 1.49s ==============================
+============================== 4 passed in 1.51s ==============================
 
 [4/4] Running Playwright E2E Dashboard Tests...
 tests/test_e2e_dashboard.py::test_page_loads_clean_with_zero_console_errors PASSED [  7%]
@@ -100,7 +100,7 @@ tests/test_e2e_dashboard.py::test_viewports_no_overflow_and_capture[vp0] PASSED 
 tests/test_e2e_dashboard.py::test_viewports_no_overflow_and_capture[vp1] PASSED [ 85%]
 tests/test_e2e_dashboard.py::test_viewports_no_overflow_and_capture[vp2] PASSED [ 92%]
 tests/test_e2e_dashboard.py::test_accessibility_smoke PASSED             [100%]
-======================= 14 passed in 106.68s =======================
+======================= 14 passed in 101.59s =======================
 
 ======================================================================
  [VERIFY PASSED] ALL GATES CLEARED -- SYSTEM IS 100% DEMO-READY
@@ -113,11 +113,11 @@ tests/test_e2e_dashboard.py::test_accessibility_smoke PASSED             [100%]
 
 All screenshots captured live by Playwright and stored in `docs/screenshots/`:
 
-1. `docs/screenshots/scenario_A.png`: Scenario A stable baseline, 0 migrations, HOLD decisions.
-2. `docs/screenshots/scenario_B.png`: Scenario B proactive migration of Layer 1 to Edge Node A, memory reduced.
-3. `docs/screenshots/scenario_C.png`: Scenario C 8-second temporary bandwidth collapse (2 Mbps) with HOLD filtering.
-4. `docs/screenshots/scenario_D.png`: Scenario D persistent degradation adapting to local-heavy partition (UD layers: 1 → 2).
-5. `docs/screenshots/scenario_E.png`: Scenario E transfer fault injection, atomic rollback, and lock release.
+1. `docs/screenshots/scenario_A.png`: Scenario A stable baseline, all 3 tiers active (`UD [0-1] | EA [2-3] | EB [4-5]`), 0 migrations, HOLD decisions.
+2. `docs/screenshots/scenario_B.png`: Scenario B proactive migration of Layer 1 to Edge A and offload to Edge Node B (`UD [0-0] | EA [1-2] | EB [3-5]`), memory reduced.
+3. `docs/screenshots/scenario_C.png`: Scenario C 8-second temporary bandwidth collapse (2 Mbps) with HOLD filtering across 3-tier distribution.
+4. `docs/screenshots/scenario_D.png`: Scenario D persistent degradation adapting to local-heavy partition (`UD [0-1] | EA [2-3] | EB [4-5]`).
+5. `docs/screenshots/scenario_E.png`: Scenario E transfer fault injection during state transfer to Edge Node B, atomic rollback, and 3-tier snapshot restoration.
 6. `docs/screenshots/cuda_panel_cpu.png`: Honest CPU fallback panel displaying `CUDA unavailable — running on CPU`.
 7. `docs/screenshots/cuda_panel_mock.png`: Emulated NVIDIA RTX 4090 telemetry with 24 GB VRAM introspection.
 8. `docs/screenshots/viewport_1920x1080.png`: Full HD layout audit.

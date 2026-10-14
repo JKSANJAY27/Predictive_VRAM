@@ -8,7 +8,7 @@ echo " [VERIFY GATE] FULL PROJECT TEST SUITE & DOCUMENTATION AUDIT"
 echo "======================================================================"
 
 echo "[1/4] Running Documentation Integrity Audit..."
-if git grep -nI "DEMO_AND_PRESENTATION_GUIDE.md" -- ":!AUDIT_REPORT.md" ":!FINAL_REPORT.md" 2>/dev/null; then
+if git grep -nI "DEMO_AND_PRESENTATION_GUIDE.md" -- ":!AUDIT_REPORT.md" ":!FINAL_REPORT.md" ":!CHANGELOG_AUDIT.md" ":!scripts/verify.*" 2>/dev/null; then
     echo "FAIL: Dangling reference found."
     exit 1
 fi

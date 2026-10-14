@@ -975,8 +975,8 @@
       <!-- KPI 1: Active Plan -->
       <div class="kpi-card">
         <div class="kpi-label">Active Partition Plan</div>
-        <div class="kpi-value" id="kpi-plan" style="font-size: 1.15rem;">UD [0-1] | EA [2-3]</div>
-        <div class="kpi-subtext" id="kpi-plan-id">plan_ud0-1_ea2-3</div>
+        <div class="kpi-value" id="kpi-plan" style="font-size: 1.15rem;">UD [0-1] | EA [2-3] | EB [4-5]</div>
+        <div class="kpi-subtext" id="kpi-plan-id">plan_ud0-1_ea2-3_eb4-5</div>
       </div>
 
       <!-- KPI 2: Bandwidth -->
@@ -1071,16 +1071,16 @@
         </div>
 
         <!-- Tier 3: Edge Node B -->
-        <div class="tier-box standby-tier" id="tier-eb">
+        <div class="tier-box active-tier" id="tier-eb">
           <div class="tier-header">
             <div class="tier-title">
               <span>☁️</span> Edge Node B (Cloud-Edge)
             </div>
-            <span class="tier-count-badge" id="count-eb">0 Layers</span>
+            <span class="tier-count-badge" id="count-eb">2 Layers</span>
           </div>
           <div class="tier-specs" id="specs-eb">
-            Status: Standby / Regional Failover<br>
-            Link: 15 ms RTT to EA
+            Host: Cloud-Edge Regional Server<br>
+            Device: <code>cpu</code> | Inter-tier: TCP Emulated
           </div>
           <div class="layer-chips-container" id="chips-eb">
             <!-- Chips rendered dynamically -->
@@ -1341,6 +1341,18 @@
       document.getElementById('count-ea').textContent = `${eaLayers.length} Layers`;
       document.getElementById('count-eb').textContent = `${ebLayers.length} Layers`;
 
+      const tierEbBox = document.getElementById('tier-eb');
+      const specsEb = document.getElementById('specs-eb');
+      if (tierEbBox && specsEb) {
+        if (ebLayers.length > 0) {
+          tierEbBox.className = 'tier-box active-tier';
+          specsEb.innerHTML = 'Host: Cloud-Edge Regional Server<br>Device: <code>cpu</code> | Inter-tier: TCP Emulated';
+        } else {
+          tierEbBox.className = 'tier-box standby-tier';
+          specsEb.innerHTML = 'Status: Standby / Regional Failover<br>Link: 15 ms RTT to EA';
+        }
+      }
+
       const chipsUd = document.getElementById('chips-ud');
       const chipsEa = document.getElementById('chips-ea');
       const chipsEb = document.getElementById('chips-eb');
@@ -1368,11 +1380,12 @@
 
     function createChipElement(idx, tierName, isTransferring) {
       const chip = document.createElement('div');
-      chip.className = 'layer-chip' + (isTransferring && idx === 1 ? ' migrating' : '');
+      const isMigrating = isTransferring && (idx === 1 || idx === 3);
+      chip.className = 'layer-chip' + (isMigrating ? ' migrating' : '');
       chip.id = `layer-chip-${idx}`;
       
-      const layerName = (idx === 0) ? 'Layer 0 (Embed + Self-Attn)' :
-                        (idx === 3) ? 'Layer 3 (LM-Head + Unembed)' :
+      const layerName = (idx === 0) ? 'Layer 0 (Embed + Attn)' :
+                        (idx === 5) ? 'Layer 5 (LM-Head + Unembed)' :
                         `Layer ${idx} (TransformerBlock)`;
 
       chip.innerHTML = `

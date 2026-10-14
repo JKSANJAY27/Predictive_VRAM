@@ -137,14 +137,16 @@ def test_scenario_b_e2e(server_instance, browser_context):
     # Wait for completion
     page.wait_for_selector("#scenario-status-pill:has-text('COMPLETED')", timeout=15000)
 
-    # Check that migration occurred: plan changed to UD [0-0] | EA [1-3]
+    # Check that migration occurred: plan changed to UD [0-0] | EA [1-2] | EB [3-5]
     plan = page.text_content("#kpi-plan")
     assert "USER_DEVICE [0-0]" in plan
-    assert "EDGE_A [1-3]" in plan
+    assert "EDGE_A [1-2]" in plan
+    assert "EDGE_B [3-5]" in plan
 
-    # Check layer count: UD has 1, EA has 3
+    # Check layer count: UD has 1, EA has 2, EB has 3
     assert "1 Layers" in page.text_content("#count-ud")
-    assert "3 Layers" in page.text_content("#count-ea")
+    assert "2 Layers" in page.text_content("#count-ea")
+    assert "3 Layers" in page.text_content("#count-eb")
 
     # Migration count is 1
     assert page.text_content("#kpi-migrations").startswith("1 /")

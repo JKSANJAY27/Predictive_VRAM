@@ -82,9 +82,9 @@ Walk your professor through the interface in this order:
 ## 4. Button-by-Button Scenario Guide
 
 ### Scenario A — Everything is Stable
-- **What it does:** Simulates ideal, stable channel conditions (100 Mbps, 5 ms RTT) with flat memory pressure.
+- **What it does:** Simulates ideal, stable channel conditions (100 Mbps, 5 ms RTT) with flat memory pressure across all 3 tiers (`UD [0-1] | EA [2-3] | EB [4-5]`).
 - **What to point at:** Point at the KPI cards (100 Mbps) and the Decision Log. Show that the controller issues `HOLD` every single step with reason `stable`.
-- **What the audience should conclude:** The controller does not thrash or migrate when conditions are optimal.
+- **What the audience should conclude:** The controller does not thrash or migrate when conditions are optimal across the distributed 3-tier pipeline.
 - **The Lesson Sentence:** *"A good adaptive system should know when not to act."*
 - **Duration:** ~6 seconds (10 steps).
 
@@ -95,9 +95,9 @@ Walk your professor through the interface in this order:
 - **What to point at:** 
   1. Watch **Predicted Time-To-Exhaustion** decrease step-by-step: `28.0s → 21.5s → 15.0s → 8.5s` (card turns amber, then red).
   2. Point at the **Migration Phase Track**: watch it sequence through `EVALUATING` → `LOCKED` → `TRANSFERRING` → `COMMITTED`.
-  3. Watch the **Split Topology**: Layer 1 visibly migrates from User Device to Edge Node A!
-  4. Local layer count changes from 2 → 1. Local memory drops from 18 MB → 12.5 MB.
-- **What the audience should conclude:** The predictive controller forecasted exhaustion 8 seconds ahead of time and offloaded Layer 1 *before* an out-of-memory crash could occur.
+  3. Watch the **Split Topology**: User Device offloads Layer 1 to Edge Node A, which offloads Layer 3 to Edge Node B (`UD [0-0] | EA [1-2] | EB [3-5]`).
+  4. Local layer count changes from 2 → 1. Local memory drops from 18 MB → 13.5 MB.
+- **What the audience should conclude:** The predictive controller forecasted exhaustion ahead of time and offloaded layers across edge tiers to Cloud-Edge Node B *before* an out-of-memory crash could occur.
 - **The Lesson Sentence:** *"Predict a memory problem early enough to avoid it."*
 - **Duration:** ~8 seconds (12 steps).
 
@@ -109,7 +109,7 @@ Walk your professor through the interface in this order:
   1. Point at the Bandwidth KPI plunging to `2.0 Mbps` (tagged `Simulated`).
   2. Point at the Decision Log: the controller explicitly logs `HOLD` with reason `switching_cost_exceeds_gain`.
   3. Migration count stays `0 / 0`. The controller refuses to panic-migrate because the transfer cost across a 2 Mbps link exceeds the transient gain.
-  4. Bandwidth recovers to 100 Mbps; generation continues uninterrupted.
+  4. Bandwidth recovers to 100 Mbps; 3-tier generation continues uninterrupted (`UD [0-1] | EA [2-3] | EB [4-5]`).
 - **What the audience should conclude:** Predictive hysteresis and switching-cost evaluation filter out transient channel drops that would cause reactive systems to thrash.
 - **The Lesson Sentence:** *"Do not migrate just because conditions briefly worsen."*
 - **Duration:** ~10 seconds (15 steps).
@@ -117,11 +117,11 @@ Walk your professor through the interface in this order:
 ---
 
 ### Scenario D — Bandwidth Stays Poor
-- **What it does:** Starts with 1 layer local and 3 layers remote (`UD [0-0] | EA [1-3]`). Bandwidth drops to 5.0 Mbps and *remains* low.
+- **What it does:** Starts with 1 layer local and 5 layers remote (`UD [0-0] | EA [1-2] | EB [3-5]`). Bandwidth drops to 5.0 Mbps and *remains* low.
 - **What to point at:**
   1. Notice the initial hold period (steps 1–3): the controller evaluates persistence.
   2. Once the persistence criterion is met (>3 degraded cycles), the controller triggers a migration.
-  3. Layer 1 migrates from Edge Node A *back to User Device* (`UD [0-1] | EA [2-3]`).
+  3. Layer 1 migrates from Edge Node A *back to User Device* (`UD [0-1] | EA [2-3] | EB [4-5]`).
   4. Local layer count increases (1 → 2).
 - **What the audience should conclude:** When degradation is permanent, the controller adapts by selecting a local-heavy partition to minimize cross-network activation transfers.
 - **The Lesson Sentence:** *"Ignore short-lived fluctuations, but adapt to persistent degradation."*
@@ -130,13 +130,13 @@ Walk your professor through the interface in this order:
 ---
 
 ### Scenario E — Migration Fails Midway (Rollback & Fault Recovery)
-- **What it does:** Initiates a migration to relieve pressure, but injects a transfer fault (socket timeout / corrupted checksum) midway.
+- **What it does:** Initiates a migration to relieve pressure, but injects a transfer fault (socket timeout / corrupted checksum) midway during state transfer to Edge Node B.
 - **What to point at:**
   1. Point at the Migration Phase Track: sequences to `TRANSFERRING`, then flashes `ROLLED BACK` (neon red).
   2. Point at the Rollback counter: increments to `1`.
   3. Point at the Decision Log: `ROLLBACK (injected_transfer_fault)` with full snapshot restoration notice.
-  4. Point at the Split Topology: layers remain intact (`UD [0-1] | EA [2-3]`); no layer is orphaned or duplicated.
-  5. The runtime quiescence lock is released, and autoregressive generation resumes smoothly.
+  4. Point at the Split Topology: layers remain intact (`UD [0-1] | EA [2-3] | EB [4-5]`); no layer is orphaned or duplicated.
+  5. The runtime quiescence lock is released, and autoregressive generation resumes smoothly across all 3 tiers.
 - **What the audience should conclude:** The migration manager is strictly transactional: failure triggers atomic rollback without crashing the inference pipeline.
 - **The Lesson Sentence:** *"A safe system needs failure recovery, not just a successful migration path."*
 - **Duration:** ~7 seconds (10 steps).
@@ -145,7 +145,7 @@ Walk your professor through the interface in this order:
 
 ### Stop & Reset Controls
 - **Stop Button:** Immediately pauses/halts an ongoing scenario cleanly mid-run.
-- **Reset Button:** Restores pristine initial state (`UD [0-1] | EA [2-3]`), clears logs, resets metrics, and releases any acquired locks. Always functional.
+- **Reset Button:** Restores pristine initial state (`UD [0-1] | EA [2-3] | EB [4-5]`), clears logs, resets metrics, and releases any acquired locks. Always functional.
 - **Toggle Mock GPU:** Toggles the hardware panel between real host CPU fallback and an emulated NVIDIA RTX 4090 with 24 GB VRAM introspection.
 
 ---

@@ -9,7 +9,7 @@ Write-Host "====================================================================
 
 # 1. Docs Link & Dead Reference Check
 Write-Host "[1/4] Running Documentation Integrity & Dead Link Audit..." -ForegroundColor Yellow
-$deadRefs = git grep -nI "DEMO_AND_PRESENTATION_GUIDE.md" -- ":!AUDIT_REPORT.md" ":!FINAL_REPORT.md" 2>$null
+$deadRefs = git grep -nI "DEMO_AND_PRESENTATION_GUIDE.md" -- ":!AUDIT_REPORT.md" ":!FINAL_REPORT.md" ":!CHANGELOG_AUDIT.md" ":!scripts/verify.*" 2>$null
 if ($deadRefs) {
     Write-Host "FAIL: Found dangling reference to deleted file:" -ForegroundColor Red
     Write-Host $deadRefs -ForegroundColor Red
