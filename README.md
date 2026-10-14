@@ -10,6 +10,8 @@ A research prototype exploring adaptive split-computing of autoregressive Large 
 2. **Edge Node A** (Local Aggregator / Near Edge Server)
 3. **Edge Node B** (Regional Edge Server / Cloud-Edge Gateway)
 
+> **Interactive Demonstration**: To launch the live presentation dashboard, see [Section 1.1](#11-interactive-dashboard--demo-quick-start) below or review the presenter script in [teacher_demo.md](teacher_demo.md).
+
 ---
 
 ## 1. Project Purpose & Research Contribution
@@ -24,6 +26,57 @@ Rather than treating dynamic partitioning as a purely reactive problem or claimi
 - Partition stability and oscillation avoidance (cooldown / dwell-time constraints)
 
 > **Important Boundary**: Module 6 scores candidates; Module 7 makes the keep/migrate decision; Module 8 executes the transactional migration.
+
+### 1.1 Interactive Dashboard & Demo Quick Start
+
+The project includes an interactive **Grey Neon Glassmorphism** control center served on `http://localhost:8000`:
+
+#### 1. Pre-flight Environment Diagnostic
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/preflight.ps1
+```
+*(On Linux/WSL: `./scripts/preflight.sh`)*
+
+#### 2. Start the Dashboard
+```powershell
+powershell -ExecutionPolicy Bypass -File start.ps1
+```
+*(Or launch directly: `uv run python scripts/run_dashboard.py --port 8000`)*  
+Open **`http://localhost:8000`** in any modern web browser.
+
+#### 3. Stop the Dashboard
+```powershell
+powershell -ExecutionPolicy Bypass -File end.ps1
+```
+
+#### 4. Run the Full Verification Gate
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/verify.ps1
+```
+
+---
+
+## 1.2 Demonstration Scenarios (Section 2 Specification)
+
+The dashboard provides automated, deterministic execution of five canonical scenarios:
+
+| Scenario | Title | Condition | Expected Controller Behavior | Architectural Lesson |
+|:---:|---|---|---|---|
+| **A** | **Stable Baseline** | 100 Mbps, 5 ms RTT, flat memory | Controller keeps active plan. Zero migrations. Logs `HOLD (stable)`. | *"A good adaptive system should know when not to act."* |
+| **B** | **KV-Cache Threat** | Continuous generation, KV cache expands | Predicted time-to-exhaustion decreases. Proactively migrates Layer 1 to Edge A before exhaustion occurs. | *"Predict a memory problem early enough to avoid it."* |
+| **C** | **Transient Dip (8s)** | Bandwidth collapses 100 → 2 Mbps for 8s, recovers | Switching cost exceeds transient benefit. Controller logs `HOLD`, 0 migrations occur. | *"Do not migrate just because conditions briefly worsen."* |
+| **D** | **Persistent Degradation** | Bandwidth drops to 5 Mbps and remains low | After persistence criterion is met (>3 cycles), controller migrates to a local-heavy partition (UD layers: 1 → 2). | *"Ignore short-lived fluctuations, but adapt to persistent degradation."* |
+| **E** | **Rollback & Fault Recovery** | Injected fault during state transfer | Migration Manager catches failure, restores pre-migration snapshot, releases lock, and resumes generation on original plan. | *"A safe system needs failure recovery, not just a successful migration path."* |
+
+---
+
+## 1.3 Hardware Telemetry & Honest Provenance
+
+In accordance with strict research integrity:
+- **Real NVIDIA CUDA Hardware:** When an NVIDIA GPU is present, PyTorch and NVML query real device telemetry (`torch.cuda.mem_get_info()`, `pynvml`).
+- **CPU Fallback:** When physical CUDA hardware is not detected (e.g. on AMD / CPU systems), the UI explicitly reports **`CUDA unavailable — running on CPU`** and never shows fake GPU numbers. Host RAM and CPU cores are measured live via `psutil`.
+- **Emulated GPU Inspection:** The dashboard includes a "Toggle Mock GPU" button that enables `MockCUDAHardwareProvider` (NVIDIA RTX 4090, 24 GB VRAM) for testing GPU-specific paths, with data provenance tagged as `EMULATED`.
+
 
 ---
 
